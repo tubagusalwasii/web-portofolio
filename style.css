@@ -51,11 +51,7 @@ a { color: var(--brand); text-decoration: none; }
 a:hover { color: var(--brand-hover); }
 
 .button {
-<<<<<<< HEAD
-  display: inline-flex;
-=======
   display: inline-flex; /* Menggunakan inline-flex untuk alignment ikon */
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -66,20 +62,6 @@ a:hover { color: var(--brand-hover); }
   text-align: center;
   transition: all 0.3s ease;
 }
-<<<<<<< HEAD
-.button.primary { background: var(--brand); color: #fff; }
-.button.primary:hover { background: var(--brand-hover); }
-.button.secondary { border: 2px solid var(--brand); color: var(--brand); }
-.button.secondary:hover { background: var(--brand); color: #fff; }
-.button.small { padding: 0.5rem 1rem; font-size: 0.9rem; }
-
-/* ===== Layout & Section Headers ===== */
-.container { width: 90%; max-width: 1100px; margin: 0 auto; }
-.section { 
-  padding: 5rem 0; 
-  position: relative;
-}
-=======
 .button.secondary { 
   border: 2px solid var(--brand); 
   color: var(--brand); 
@@ -97,7 +79,6 @@ a:hover { color: var(--brand-hover); }
 /* ===== Layout & Section Headers ===== */
 .container { width: 90%; max-width: 1100px; margin: 0 auto; }
 .section { padding: 5rem 0; position: relative; overflow: hidden; }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 .section::before {
   content: '';
   position: absolute;
@@ -144,16 +125,9 @@ a:hover { color: var(--brand-hover); }
 
 /* ===== Hero Section ===== */
 .hero { padding: 5rem 0; display: flex; align-items: center; min-height: 100vh; }
-<<<<<<< HEAD
-.hero-grid { display: grid; gap: 3rem; grid-template-columns: 1fr 1fr; align-items: center; }
-.hero-text h1 { font-size: 3rem; }
-.subtitle { margin: 1rem 0 2rem; font-size: 1.2rem; min-height: 50px; }
-.hero-cta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-=======
 .hero-grid { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; align-items: center; }
 .hero-text h1 { font-size: 3rem; }
 .subtitle { margin: 1rem 0 2rem; font-size: 1.2rem; min-height: 50px; }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 .hero-media { width: 350px; height: 350px; border-radius: 50%; position: relative; margin: 0 auto; overflow: hidden; box-shadow: 0 0 30px rgba(157, 78, 221, 0.6); transition: box-shadow 0.4s ease; }
 .hero-media img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: transform 0.3s ease; }
 .hero-media::before { content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: rgba(255, 255, 255, 0.3); transform: translateX(-100%) skewX(-30deg); transition: transform 0.8s ease; z-index: 1; }
@@ -161,11 +135,6 @@ a:hover { color: var(--brand-hover); }
 .hero-media:hover img { transform: scale(1.03); }
 .hero-media:hover::before { transform: translateX(200%) skewX(-30deg); }
 
-<<<<<<< HEAD
-/* ===== About Section ===== */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: flex-start; }
-#about .two-col p { text-align: justify; }
-=======
 /* Penjajaran Tombol di Hero Section */
 .hero-cta {
   display: flex;
@@ -175,7 +144,6 @@ a:hover { color: var(--brand-hover); }
 }
 /* ===== About Section ===== */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: flex-start; }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; text-decoration: none; color: var(--text); position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
@@ -186,14 +154,10 @@ a:hover { color: var(--brand-hover); }
 .stat-arrow { align-self: flex-end; font-size: 1.5rem; line-height: 1; color: var(--brand); transition: transform 0.3s ease; }
 .stat-card:hover .stat-arrow { transform: translateX(5px); }
 .badge { display: inline-block; background: var(--brand); color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; margin: 0.2rem; }
-<<<<<<< HEAD
-
-=======
 /* Membuat teks di bagian "Tentang Saya" rata kanan-kiri */
 #about .two-col p {
   text-align: justify;
 }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 /* ===== Portfolio Tabs ===== */
 .portfolio-tabs { display: flex; justify-content: center; border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; }
 .tab-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.75rem 1rem; background-color: transparent; border: none; color: var(--text); font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.3s ease-in-out; }
@@ -201,11 +165,7 @@ a:hover { color: var(--brand-hover); }
 .tab-button.active { background-color: var(--brand); color: #fff; font-weight: 600; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4); }
 .tab-button svg { transition: transform 0.3s ease; }
 .tab-button.active svg { transform: scale(1.1); }
-<<<<<<< HEAD
-.tab-content { padding-top: 1rem; min-height: 500px; }
-=======
 .tab-content { padding-top: 1rem; }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 .tab-panel { display: none; }
 .tab-panel.active { display: block; animation: fadeIn 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -220,20 +180,6 @@ a:hover { color: var(--brand-hover); }
 .certificate-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.3s ease; }
 .certificate-item:hover { transform: scale(1.05); }
 .cert-img { width: 100%; height: auto; display: block; }
-<<<<<<< HEAD
-.grid.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; }
-.card:hover { transform: translateY(-8px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
-.card-media { width: 100%; height: 200px; background-size: cover; background-position: center; }
-.card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-.card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-.card p { opacity: 0.8; margin-bottom: 1rem; flex-grow: 1; }
-.tags { margin-bottom: 1.5rem; }
-.tags span { display: inline-block; background: var(--border); font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 12px; margin-right: 0.3rem; margin-bottom: 0.3rem; }
-.card-actions { margin-top: auto; display: flex; justify-content: flex-end; }
-
-/* "Show More" Certificates */
-=======
 /* SESUDAH */
 .grid.cards { 
   display: grid; 
@@ -277,29 +223,20 @@ a:hover { color: var(--brand-hover); }
 }
 
 /* ===== "Show More" Certificates ===== */
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 .certificate-item.hidden-item { display: none; }
 .certificate-item.visible-item { display: block; animation: fadeIn 0.5s ease forwards; }
 .show-more-container { text-align: center; margin-top: 2rem; }
 
 /* ===== Contact Section ===== */
-<<<<<<< HEAD
-.contact-list { list-style: none; padding-left: 0; }
-=======
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 .contact-list li a { display: flex; align-items: center; gap: 0.75rem; }
 .contact-socials { display: flex; gap: 1.5rem; margin-top: 1rem; }
 .contact-form label { display: block; margin-bottom: 1rem; font-weight: 500; }
 .contact-form input, .contact-form textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); }
-<<<<<<< HEAD
-
-=======
 /* Menghilangkan bullet point di daftar kontak */
 .contact-list {
   list-style: none; /* Menghapus gaya daftar default (titik/bullet) */
   padding-left: 0;  /* Menghapus padding kiri bawaan dari <ul> */
 }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 /* ===== Lightbox ===== */
 .lightbox { display: none; position: fixed; z-index: 9999; padding-top: 60px; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); }
 #lightbox-img { margin: auto; display: block; max-width: 90%; max-height: 80vh; border-radius: 12px; }
@@ -309,18 +246,7 @@ a:hover { color: var(--brand-hover); }
 .site-footer { background: #11111c; text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); }
 .footer-grid { display: flex; justify-content: center; align-items: center; }
 
-<<<<<<< HEAD
-/* ===== Responsive Design (FINAL dengan Breakpoint Tablet) ===== */
-@media (max-width: 992px) {
-  .hero-text h1 { font-size: 2.5rem; }
-  .section-header h2 { font-size: 2.5rem; }
-  .hero-grid, .two-col { gap: 2rem; }
-  .primary-nav ul { gap: 1.25rem; }
-}
-
-=======
 /* ===== Responsive Design (Mobile) ===== */
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
 @media (max-width: 768px) {
   .section { padding: 4rem 0; }
   .section-header h2 { font-size: 2.2rem; }
@@ -329,11 +255,7 @@ a:hover { color: var(--brand-hover); }
   .hero-text h1 { font-size: 2.5rem; }
   .hero-media { margin-top: 3rem; width: 280px; height: 280px; }
   .hero-cta { flex-direction: column; align-items: center; gap: 1rem; }
-<<<<<<< HEAD
-  .stats-grid { grid-template-columns: 1fr; }
-=======
   .stats-grid { grid-template-columns: 1fr; text-align: left; }
->>>>>>> 32ee23e0c45de34bef277bde5af1ae70ba045044
   .stat-card { flex-direction: row; align-items: center; text-align: left; padding: 1rem; }
   .stat-card .num { font-size: 1.8rem; margin-left: 1rem; }
   .stat-card h3 { font-size: 0.9rem; margin-top: 0; }
