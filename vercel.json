@@ -35,6 +35,10 @@
         "DB_PASSWORD": "npg_GrbULFzP32Wd",
         "PGSSLMODE": "require",
         "DB_NEON_ENDPOINT": "ep-dry-wave-antqbqm8",
+        "CLOUDINARY_CLOUD_NAME": "dgfnybqyl",
+        "CLOUDINARY_API_KEY": "441995942879594",
+        "CLOUDINARY_API_SECRET": "c22chya68KOvyS6947NCOzRaMNg",
+        "FILESYSTEM_DISK": "cloudinary",
         "SESSION_DRIVER": "cookie",
         "CACHE_STORE": "array"
     }

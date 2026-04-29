@@ -32,6 +32,7 @@ class ProjectResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->image()
+                    ->disk('cloudinary')
                     ->directory('projek')
                     ->required(),
                 Forms\Components\TextInput::make('url_link')

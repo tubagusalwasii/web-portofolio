@@ -25,6 +25,7 @@ class CertificateResource extends Resource
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
                     ->image()
+                    ->disk('cloudinary')
                     ->directory('sertifikat')
                     ->required(),
                 Forms\Components\TextInput::make('sort_order')
