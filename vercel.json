@@ -24,6 +24,12 @@
         "APP_URL": "https://www.tubagusalwasii.my.id",
         "LOG_CHANNEL": "stderr",
         "DB_CONNECTION": "pgsql",
+        "DB_HOST": "ep-dry-wave-antqbqm8.c-6.us-east-1.aws.neon.tech",
+        "DB_PORT": "5432",
+        "DB_DATABASE": "neondb",
+        "DB_USERNAME": "neondb_owner",
+        "DB_PASSWORD": "npg_GrbULFzP32Wd",
+        "PGSSLMODE": "require",
         "SESSION_DRIVER": "cookie",
         "CACHE_STORE": "array"
     }
