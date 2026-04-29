@@ -16,6 +16,7 @@ $directories = [
     '/tmp/storage/framework/testing',
     '/tmp/storage/logs',
     '/tmp/storage/app/public',
+    '/tmp/storage/app/livewire-tmp', // Required for Filament/Livewire uploads
     '/tmp/cache',  // For bootstrap cache (packages.php, services.php, etc.)
 ];
 
