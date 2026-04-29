@@ -16,6 +16,7 @@ $directories = [
     '/tmp/storage/framework/testing',
     '/tmp/storage/logs',
     '/tmp/storage/app/public',
+    '/tmp/cache',  // For bootstrap cache (packages.php, services.php, etc.)
 ];
 
 foreach ($directories as $dir) {
@@ -26,11 +27,21 @@ foreach ($directories as $dir) {
 
 // 2. Set critical environment variables BEFORE Laravel boots
 //    These ensure Laravel's config reads the correct paths
+//    and redirect all cache writes to writable /tmp
 $envVars = [
-    'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
-    'LOG_CHANNEL'        => 'stderr',
-    'SESSION_DRIVER'     => 'cookie',
-    'CACHE_STORE'        => 'array',
+    // Storage & views
+    'VIEW_COMPILED_PATH'  => '/tmp/storage/framework/views',
+    'LOG_CHANNEL'         => 'stderr',
+    'SESSION_DRIVER'      => 'cookie',
+    'CACHE_STORE'         => 'array',
+
+    // Bootstrap cache paths (CRITICAL for read-only filesystem)
+    // These redirect PackageManifest and ServiceManifest writes to /tmp
+    'APP_PACKAGES_CACHE'  => '/tmp/cache/packages.php',
+    'APP_SERVICES_CACHE'  => '/tmp/cache/services.php',
+    'APP_CONFIG_CACHE'    => '/tmp/cache/config.php',
+    'APP_ROUTES_CACHE'    => '/tmp/cache/routes-v7.php',
+    'APP_EVENTS_CACHE'    => '/tmp/cache/events.php',
 ];
 
 foreach ($envVars as $key => $value) {
