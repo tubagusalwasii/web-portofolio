@@ -12,6 +12,8 @@
         { "src": "/css/(.*)", "dest": "/css/$1" },
         { "src": "/js/(.*)", "dest": "/js/$1" },
         { "src": "/images/(.*)", "dest": "/images/$1" },
+        { "src": "/fonts/(.*)", "dest": "/fonts/$1" },
+        { "src": "/storage/assets/(.*)", "dest": "/assets/$1" },
         { "src": "/favicon.ico", "dest": "/favicon.ico" },
         { "src": "/style.css", "dest": "/style.css" },
         { "src": "/script.js", "dest": "/script.js" },
