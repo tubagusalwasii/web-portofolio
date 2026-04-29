@@ -7,16 +7,17 @@
         }
     },
     "routes": [
-        { "src": "/build/(.*)", "dest": "/public/build/$1" },
-        { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
-        { "src": "/css/(.*)", "dest": "/public/css/$1" },
-        { "src": "/js/(.*)", "dest": "/public/js/$1" },
-        { "src": "/images/(.*)", "dest": "/public/images/$1" },
-        { "src": "/favicon.ico", "dest": "/public/favicon.ico" },
-        { "src": "/style.css", "dest": "/public/style.css" },
-        { "src": "/script.js", "dest": "/public/script.js" },
+        { "src": "/build/(.*)", "dest": "/build/$1" },
+        { "src": "/assets/(.*)", "dest": "/assets/$1" },
+        { "src": "/css/(.*)", "dest": "/css/$1" },
+        { "src": "/js/(.*)", "dest": "/js/$1" },
+        { "src": "/images/(.*)", "dest": "/images/$1" },
+        { "src": "/favicon.ico", "dest": "/favicon.ico" },
+        { "src": "/style.css", "dest": "/style.css" },
+        { "src": "/script.js", "dest": "/script.js" },
         { "src": "/(.*)", "dest": "/api/index.php" }
     ],
+    "outputDirectory": "public",
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
