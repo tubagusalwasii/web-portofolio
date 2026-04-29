@@ -20,14 +20,11 @@
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
+        "APP_KEY": "base64:SEO6abhlN0T8afteBjk8kuo/C9pFo3DXELVaMPc5LYw=",
+        "APP_URL": "https://www.tubagusalwasii.my.id",
         "LOG_CHANNEL": "stderr",
         "DB_CONNECTION": "pgsql",
-        "VIEW_COMPILED_PATH": "/tmp",
         "SESSION_DRIVER": "cookie",
-        "CACHE_STORE": "array",
-        "CONFIG_CACHE": "/tmp/config.php",
-        "ROUTES_CACHE": "/tmp/routes.php",
-        "SERVICES_CACHE": "/tmp/services.php",
-        "PACKAGES_CACHE": "/tmp/packages.php"
+        "CACHE_STORE": "array"
     }
 }
