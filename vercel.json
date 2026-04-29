@@ -7,20 +7,22 @@
         }
     },
     "routes": [
-        {
-            "handle": "filesystem"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/api/index.php"
-        }
+        { "src": "/build/(.*)", "dest": "/public/build/$1" },
+        { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+        { "src": "/css/(.*)", "dest": "/public/css/$1" },
+        { "src": "/js/(.*)", "dest": "/public/js/$1" },
+        { "src": "/images/(.*)", "dest": "/public/images/$1" },
+        { "src": "/favicon.ico", "dest": "/public/favicon.ico" },
+        { "src": "/style.css", "dest": "/public/style.css" },
+        { "src": "/script.js", "dest": "/public/script.js" },
+        { "src": "/(.*)", "dest": "/api/index.php" }
     ],
-    "outputDirectory": "public",
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_KEY": "base64:SEO6abhlN0T8afteBjk8kuo/C9pFo3DXELVaMPc5LYw=",
         "APP_URL": "https://www.tubagusalwasii.my.id",
+        "ASSET_URL": "https://www.tubagusalwasii.my.id",
         "LOG_CHANNEL": "stderr",
         "DB_CONNECTION": "pgsql",
         "DB_HOST": "ep-dry-wave-antqbqm8.c-6.us-east-1.aws.neon.tech",
