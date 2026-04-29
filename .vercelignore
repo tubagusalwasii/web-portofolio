@@ -6,3 +6,4 @@ storage/*.key
 .env.*
 phpunit.xml
 tests
+bootstrap/cache/*.php
