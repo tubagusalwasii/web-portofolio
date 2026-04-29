@@ -5,14 +5,7 @@ AOS.init({
   offset: 120,
 });
 
-// ===== Efek Mengetik di Hero Section (Typed.js) =====
-const typed = new Typed('#typing-effect', {
-  strings: ["UI/UX Designer", "Mobile Developer", "Machine Learning Enthusiast"],
-  typeSpeed: 50,
-  backSpeed: 30,
-  backDelay: 1500,
-  loop: true,
-});
+// ===== Efek Mengetik di Hero Section (Diinisialisasi secara dinamis di welcome.blade.php) =====
 
 // ===== Interaksi Navigasi Mobile =====
 const navToggle = document.querySelector('.nav-toggle');
@@ -24,7 +17,7 @@ navToggle?.addEventListener('click', () => {
 });
 
 // ===== Sorot Link Aktif Saat Scroll (Scrollspy) - DIPERBAIKI =====
-const sections = document.querySelectorAll('#hero, #about, #portfolio, #contact');
+const sections = document.querySelectorAll('#hero, #about, #experience, #portfolio, #contact');
 const navLinks = document.querySelectorAll('.primary-nav a');
 
 const observerOptions = {
@@ -86,7 +79,7 @@ certImgs.forEach(img => {
 });
 
 const closeLightbox = () => { 
-    lightbox.style.display = "none"; 
+    if (lightbox) lightbox.style.display = "none"; 
 };
 
 closeBtn?.addEventListener("click", closeLightbox);
@@ -97,7 +90,8 @@ window.addEventListener("click", (e) => {
     }
 });
 
-document.getElementById('year').textContent = new Date().getFullYear();
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 // ===== Logika untuk Tombol "Show More" Sertifikat - DIPERBAIKI =====
 const showMoreBtn = document.getElementById('show-more-certs-btn');
@@ -125,33 +119,35 @@ showMoreBtn?.addEventListener('click', () => {
 
 // ===== Logika untuk Formulir Kontak dengan EmailJS =====
 const contactForm = document.getElementById('contact-form');
-const submitBtn = contactForm.querySelector('button[type="submit"]');
+if (contactForm) {
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
 
-contactForm?.addEventListener('submit', function(event) {
-  event.preventDefault(); // Mencegah form refresh halaman
+    contactForm.addEventListener('submit', function(event) {
+      event.preventDefault(); // Mencegah form refresh halaman
 
-  // Ganti dengan ID dan Key Anda dari EmailJS
-  const serviceID = 'service_y10xhjb';
-  const templateID = 'template_vpz37de';
-  const publicKey = 'R0_eQUjSrQlI35F3R';
+      // Ganti dengan ID dan Key Anda dari EmailJS
+      const serviceID = 'service_y10xhjb';
+      const templateID = 'template_vpz37de';
+      const publicKey = 'R0_eQUjSrQlI35F3R';
 
-  // Mengubah teks tombol untuk feedback
-  submitBtn.textContent = 'Mengirim...';
+      // Mengubah teks tombol untuk feedback
+      if (submitBtn) submitBtn.textContent = 'Mengirim...';
 
-  emailjs.sendForm(serviceID, templateID, this, publicKey)
-    .then(() => {
-      // Jika berhasil
-      submitBtn.textContent = 'Pesan Terkirim!';
-      contactForm.reset(); // Mengosongkan form
-      setTimeout(() => {
-        submitBtn.textContent = 'Kirim Pesan'; // Kembalikan teks tombol setelah beberapa detik
-      }, 3000);
-    }, (err) => {
-      // Jika gagal
-      submitBtn.textContent = 'Gagal Mengirim';
-      alert(JSON.stringify(err));
-      setTimeout(() => {
-        submitBtn.textContent = 'Kirim Pesan';
-      }, 3000);
+      emailjs.sendForm(serviceID, templateID, this, publicKey)
+        .then(() => {
+          // Jika berhasil
+          if (submitBtn) submitBtn.textContent = 'Pesan Terkirim!';
+          contactForm.reset(); // Mengosongkan form
+          setTimeout(() => {
+            if (submitBtn) submitBtn.textContent = 'Kirim Pesan'; // Kembalikan teks tombol setelah beberapa detik
+          }, 3000);
+        }, (err) => {
+          // Jika gagal
+          if (submitBtn) submitBtn.textContent = 'Gagal Mengirim';
+          alert(JSON.stringify(err));
+          setTimeout(() => {
+            if (submitBtn) submitBtn.textContent = 'Kirim Pesan';
+          }, 3000);
+        });
     });
-});
+}
