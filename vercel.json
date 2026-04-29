@@ -30,6 +30,7 @@
         "DB_USERNAME": "neondb_owner",
         "DB_PASSWORD": "npg_GrbULFzP32Wd",
         "PGSSLMODE": "require",
+        "DB_NEON_ENDPOINT": "ep-dry-wave-antqbqm8",
         "SESSION_DRIVER": "cookie",
         "CACHE_STORE": "array"
     }
