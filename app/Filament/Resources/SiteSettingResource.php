@@ -31,7 +31,7 @@ class SiteSettingResource extends Resource
                     ->required(),
                 Forms\Components\FileUpload::make('hero_image')
                     ->label('Foto Profil (Hero)')
-                    ->disk('cloudinary')
+                    ->disk(config('filesystems.default', 'public'))
                     ->downloadable()
                     ->directory('settings')
                     ->required(),
@@ -44,7 +44,7 @@ class SiteSettingResource extends Resource
                     ->placeholder('Tambahkan kata dan tekan enter (opsional)'),
                 Forms\Components\FileUpload::make('cv_link')
                     ->label('File CV')
-                    ->disk('cloudinary')
+                    ->disk(config('filesystems.default', 'public'))
                     ->acceptedFileTypes(['application/pdf'])
                     ->directory('settings')
                     ->required(),
@@ -58,7 +58,8 @@ class SiteSettingResource extends Resource
                 Tables\Columns\TextColumn::make('hero_title')
                     ->label('Judul Utama'),
                 Tables\Columns\ImageColumn::make('hero_image')
-                    ->label('Foto Profil'),
+                    ->label('Foto Profil')
+                    ->disk(config('filesystems.default', 'public')),
             ])
             ->filters([
                 //

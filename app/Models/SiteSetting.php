@@ -10,6 +10,7 @@ class SiteSetting extends Model
         'hero_title',
         'hero_typing',
         'about_description',
+        'about_badges',
         'cv_link',
         'hero_image',
         'about_image',

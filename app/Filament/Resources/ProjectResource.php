@@ -32,7 +32,7 @@ class ProjectResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->disk('cloudinary')
+                    ->disk(config('filesystems.default', 'public'))
                     ->directory('projek')
                     ->required(),
                 Forms\Components\TextInput::make('url_link')
@@ -49,7 +49,8 @@ class ProjectResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->disk(config('filesystems.default', 'public')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

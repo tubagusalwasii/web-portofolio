@@ -25,7 +25,7 @@ class CertificateResource extends Resource
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->disk('cloudinary')
+                    ->disk(config('filesystems.default', 'public'))
                     ->directory('sertifikat')
                     ->required(),
                 Forms\Components\TextInput::make('sort_order')
@@ -40,7 +40,8 @@ class CertificateResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->disk(config('filesystems.default', 'public')),
                 Tables\Columns\TextColumn::make('sort_order')
                     ->sortable(),
             ])
