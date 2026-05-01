@@ -54,6 +54,9 @@ foreach ($envVars as $key => $value) {
     $_SERVER[$key] = $value;
 }
 
+// Force HTTPS for all requests on Vercel to fix Livewire signed URL validation
+$_SERVER['HTTPS'] = 'on';
+
 // 3. Define LARAVEL_START constant
 define('LARAVEL_START', microtime(true));
 
