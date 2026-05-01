@@ -16,7 +16,9 @@ $directories = [
     '/tmp/storage/framework/testing',
     '/tmp/storage/logs',
     '/tmp/storage/app/public',
+    '/tmp/storage/app/private',
     '/tmp/storage/app/livewire-tmp', // Required for Filament/Livewire uploads
+    '/tmp/storage/app/public/livewire-tmp',
     '/tmp/cache',  // For bootstrap cache (packages.php, services.php, etc.)
 ];
 
@@ -35,6 +37,7 @@ $envVars = [
     'LOG_CHANNEL'         => 'stderr',
     'SESSION_DRIVER'      => 'cookie',
     'CACHE_STORE'         => 'array',
+    'LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK' => 'public',
 
     // Bootstrap cache paths (CRITICAL for read-only filesystem)
     // These redirect PackageManifest and ServiceManifest writes to /tmp
