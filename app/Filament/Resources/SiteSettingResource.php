@@ -37,8 +37,8 @@ class SiteSettingResource extends Resource
                     ->downloadable()
                     ->directory('settings')
                     ->required()
-                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, string $disk, string $directory) {
-                        return static::saveFileToCloudinary($file, $disk, $directory);
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Forms\Components\FileUpload $component) {
+                        return static::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory() ?? 'settings');
                     }),
                 Forms\Components\Textarea::make('about_description')
                     ->label('Deskripsi Tentang Saya')
@@ -53,8 +53,8 @@ class SiteSettingResource extends Resource
                     ->acceptedFileTypes(['application/pdf'])
                     ->directory('settings')
                     ->required()
-                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, string $disk, string $directory) {
-                        return static::saveFileToCloudinary($file, $disk, $directory);
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Forms\Components\FileUpload $component) {
+                        return static::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory() ?? 'settings');
                     }),
             ]);
     }
