@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
@@ -47,17 +46,30 @@ class AppServiceProvider extends ServiceProvider
             config(['livewire.temporary_file_upload.disk' => 'database']);
         }
 
-        // Override Livewire's upload-file route with our custom controller.
-        // On Vercel: hasValidSignature() fails (proxy URL mismatch) and
-        // CSRF fails (cookie sessions don't persist across serverless instances).
-        // Route runs without 'web' middleware — security is maintained because
-        // uploads only go to temporary DB storage; actual persistence requires
-        // authenticated admin form submission.
-        $this->app->booted(function () {
-            $uploadPath = \Livewire\Mechanisms\HandleRequests\EndpointResolver::uploadPath();
-            Route::post($uploadPath, [\App\Http\Controllers\CustomFileUploadController::class, 'handle'])
-                ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
-                ->name('livewire.upload-file');
-        });
+        // === VERCEL FIX: Bypass CSRF & Signature for Livewire uploads ===
+        // On Vercel serverless:
+        // 1. hasValidSignature() fails because proxy modifies URL scheme/host
+        // 2. CSRF token mismatch because cookie sessions don't persist
+        //
+        // Solution: Register CSRF exception for ALL livewire upload paths,
+        // and swap Livewire's FileUploadController with our custom one
+        // that skips signature validation.
+        
+        // Exclude livewire upload paths from CSRF verification
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::except([
+            'livewire-*/upload-file',
+            'livewire/upload-file',
+        ]);
+
+        // Replace Livewire's FileUploadController middleware to remove 'web'
+        // so even if CSRF exception doesn't match, the middleware won't run
+        \Livewire\Features\SupportFileUploads\FileUploadController::$defaultMiddleware = [];
+        
+        // Bind our custom controller over Livewire's in the container
+        $this->app->bind(
+            \Livewire\Features\SupportFileUploads\FileUploadController::class,
+            \App\Http\Controllers\CustomFileUploadController::class
+        );
     }
 }
+
