@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        // Exclude Livewire upload from CSRF — Vercel serverless creates new
+        // instances per request, so cookie session (and CSRF token) never persists.
+        $middleware->validateCsrfTokens(except: [
+            'livewire-*/upload-file',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
