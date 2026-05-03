@@ -17,9 +17,9 @@ $directories = [
     '/tmp/storage/logs',
     '/tmp/storage/app/public',
     '/tmp/storage/app/private',
-    '/tmp/storage/app/livewire-tmp', // Required for Filament/Livewire uploads
+    '/tmp/storage/app/livewire-tmp',
     '/tmp/storage/app/public/livewire-tmp',
-    '/tmp/cache',  // For bootstrap cache (packages.php, services.php, etc.)
+    '/tmp/cache',
 ];
 
 foreach ($directories as $dir) {
@@ -29,18 +29,12 @@ foreach ($directories as $dir) {
 }
 
 // 2. Set critical environment variables BEFORE Laravel boots
-//    These ensure Laravel's config reads the correct paths
-//    and redirect all cache writes to writable /tmp
 $envVars = [
-    // Storage & views
     'VIEW_COMPILED_PATH'  => '/tmp/storage/framework/views',
     'LOG_CHANNEL'         => 'stderr',
     'SESSION_DRIVER'      => 'cookie',
     'CACHE_STORE'         => 'array',
     'LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK' => 'database',
-
-    // Bootstrap cache paths (CRITICAL for read-only filesystem)
-    // These redirect PackageManifest and ServiceManifest writes to /tmp
     'APP_PACKAGES_CACHE'  => '/tmp/cache/packages.php',
     'APP_SERVICES_CACHE'  => '/tmp/cache/services.php',
     'APP_CONFIG_CACHE'    => '/tmp/cache/config.php',
@@ -54,41 +48,139 @@ foreach ($envVars as $key => $value) {
     $_SERVER[$key] = $value;
 }
 
-// Force HTTPS for all requests on Vercel to fix Livewire signed URL validation
 $_SERVER['HTTPS'] = 'on';
-
-// Mark this as a Vercel environment
 $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';
 
-// 3. Define LARAVEL_START constant
+// ============================================================
+// 3. INTERCEPT: Handle Livewire file uploads BEFORE Laravel boots
+//    This completely bypasses ALL middleware (CSRF, session, etc.)
+//    because Vercel serverless makes them impossible to use.
+// ============================================================
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if ($requestMethod === 'POST' && preg_match('#/livewire-[a-f0-9]+/upload-file#', $requestUri)) {
+    // Bootstrap Laravel minimally for database access
+    define('LARAVEL_START', microtime(true));
+    require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    $app->useStoragePath('/tmp/storage');
+    $kernel = $app->make('Illuminate\Contracts\Http\Kernel');
+    
+    // Boot the app to register service providers (database, filesystem drivers)
+    $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+    
+    // Force the livewire disk config
+    config(['livewire.temporary_file_upload.disk' => 'database']);
+    
+    try {
+        $files = $_FILES['files'] ?? [];
+        if (empty($files)) {
+            http_response_code(422);
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'No files uploaded']);
+            exit;
+        }
+        
+        // Convert $_FILES to UploadedFile objects
+        $uploadedFiles = [];
+        if (isset($files['tmp_name'])) {
+            if (is_array($files['tmp_name'])) {
+                foreach ($files['tmp_name'] as $i => $tmpName) {
+                    $uploadedFiles[] = new \Illuminate\Http\UploadedFile(
+                        $tmpName,
+                        $files['name'][$i] ?? 'file',
+                        $files['type'][$i] ?? 'application/octet-stream',
+                        $files['error'][$i] ?? 0,
+                        true
+                    );
+                }
+            } else {
+                $uploadedFiles[] = new \Illuminate\Http\UploadedFile(
+                    $files['tmp_name'],
+                    $files['name'] ?? 'file',
+                    $files['type'] ?? 'application/octet-stream',
+                    $files['error'] ?? 0,
+                    true
+                );
+            }
+        }
+        
+        if (empty($uploadedFiles)) {
+            http_response_code(422);
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Could not process uploaded files']);
+            exit;
+        }
+        
+        // Validate files
+        $rules = config('livewire.temporary_file_upload.rules') ?? ['required', 'file', 'max:12288'];
+        if (is_string($rules)) $rules = explode('|', $rules);
+        
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            ['files' => $uploadedFiles],
+            ['files.*' => $rules]
+        );
+        
+        if ($validator->fails()) {
+            http_response_code(422);
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Validation failed', 'errors' => $validator->errors()]);
+            exit;
+        }
+        
+        // Store files using Livewire's configuration
+        $disk = \Livewire\Features\SupportFileUploads\FileUploadConfiguration::disk();
+        $paths = [];
+        
+        foreach ($uploadedFiles as $file) {
+            $path = \Livewire\Features\SupportFileUploads\FileUploadConfiguration::storeTemporaryFile($file, $disk);
+            $stripped = str_replace(
+                \Livewire\Features\SupportFileUploads\FileUploadConfiguration::path('/'),
+                '',
+                $path
+            );
+            $paths[] = \Livewire\Features\SupportFileUploads\TemporaryUploadedFile::signPath($stripped);
+        }
+        
+        http_response_code(200);
+        header('Content-Type: application/json');
+        echo json_encode(['paths' => $paths]);
+        
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'message' => 'Upload failed: ' . $e->getMessage(),
+            'file' => $e->getFile() . ':' . $e->getLine(),
+        ]);
+    }
+    
+    exit;
+}
+
+// ============================================================
+// 4. Normal Laravel request handling (for all non-upload requests)
+// ============================================================
 define('LARAVEL_START', microtime(true));
 
-// 4. Register Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
 
-// 5. Bootstrap the application (does NOT boot providers yet)
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-// 6. CRITICAL: Redirect storage path to /tmp BEFORE providers boot
-//    This ensures all storage_path() calls point to writable /tmp
 $app->useStoragePath('/tmp/storage');
 
-// 7. Bypass CSRF for Livewire upload routes
-//    On Vercel serverless, cookie sessions don't persist between requests,
-//    making CSRF token verification impossible.
+// Bypass CSRF for upload routes (backup, in case interceptor doesn't catch)
 \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::except([
     'livewire-*/upload-file',
     'livewire/upload-file',
     '*/upload-file',
 ]);
 
-// 8. Handle the request (this boots providers and processes the request)
 try {
     $app->handleRequest(Illuminate\Http\Request::capture());
 } catch (\Throwable $e) {
-    // If Laravel fails to boot, display the REAL error
-    // (not the secondary "view not found" error)
     http_response_code(500);
     header('Content-Type: application/json');
 
@@ -99,7 +191,6 @@ try {
         'trace'    => array_slice(explode("\n", $e->getTraceAsString()), 0, 15),
     ];
 
-    // Walk the exception chain to find the ROOT cause
     $prev = $e->getPrevious();
     if ($prev) {
         $error['previous'] = [
@@ -118,3 +209,4 @@ try {
     echo json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     exit(1);
 }
+
