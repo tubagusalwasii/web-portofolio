@@ -37,5 +37,10 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        // Force Livewire to use database disk on Vercel regardless of build cache
+        if (isset($_ENV['VERCEL']) || env('LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK') === 'database') {
+            config(['livewire.temporary_file_upload.disk' => 'database']);
+        }
     }
 }
