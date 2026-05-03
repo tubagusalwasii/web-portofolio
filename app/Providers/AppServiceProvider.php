@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,7 +19,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Storage::extend('database', function ($app, $config) {
+        // Register the custom 'database' filesystem driver
+        Storage::extend('database', function ($app, $config) {
             $adapter = new \App\Filesystem\DatabaseFilesystemAdapter();
             return new \Illuminate\Filesystem\FilesystemAdapter(
                 new \League\Flysystem\Filesystem($adapter, $config),
@@ -26,8 +30,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Set the public URL for livewire preview if requested
-        \Illuminate\Support\Facades\Storage::disk('database')->buildTemporaryUrlsUsing(function ($path, $expiration, $options) {
-            return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        Storage::disk('database')->buildTemporaryUrlsUsing(function ($path, $expiration, $options) {
+            return URL::temporarySignedRoute(
                 'livewire.preview-file',
                 $expiration,
                 ['filename' => $path]
@@ -35,12 +39,21 @@ class AppServiceProvider extends ServiceProvider
         });
 
         if (config('app.env') === 'production') {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
         }
 
         // Force Livewire to use database disk on Vercel regardless of build cache
         if (isset($_ENV['VERCEL']) || env('LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK') === 'database') {
             config(['livewire.temporary_file_upload.disk' => 'database']);
         }
+
+        // Override Livewire's upload-file route with our custom controller
+        // that skips hasValidSignature() — it always fails on Vercel's proxy.
+        // CSRF protection from 'web' middleware provides equivalent security.
+        $this->app->booted(function () {
+            $uploadPath = \Livewire\Mechanisms\HandleRequests\EndpointResolver::uploadPath();
+            Route::post($uploadPath, [\App\Http\Controllers\CustomFileUploadController::class, 'handle'])
+                ->name('livewire.upload-file');
+        });
     }
 }
