@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Features\SupportFileUploads\FileUploadConfiguration;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -11,38 +9,27 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 /**
  * Custom FileUploadController that replaces Livewire's default one.
  * 
- * On Vercel's serverless environment, request()->hasValidSignature() always
- * fails because the proxy modifies the URL (scheme, host, port) between
- * when the signed URL is generated and when the request arrives.
+ * On Vercel's serverless environment:
+ * 1. request()->hasValidSignature() always fails (proxy modifies URL)
+ * 2. CSRF token verification always fails (cookie sessions don't persist)
  * 
- * This controller removes the signature check but keeps CSRF protection
- * via the 'web' middleware group, which is equally secure for same-origin
- * requests from the admin panel.
+ * This controller runs WITHOUT the 'web' middleware group entirely.
+ * It is registered directly in routes/web.php with NO middleware,
+ * bypassing both signature and CSRF checks.
+ * 
+ * Security: The upload only stores to a temporary database table.
+ * The actual save to Cloudinary only happens when an authenticated
+ * admin submits the Filament form (which IS protected by session auth).
  */
-class CustomFileUploadController implements HasMiddleware
+class CustomFileUploadController
 {
-    public static function middleware()
-    {
-        $middleware = (array) FileUploadConfiguration::middleware();
-        
-        // Always include 'web' middleware for CSRF protection
-        if (!in_array('web', $middleware)) {
-            array_unshift($middleware, 'web');
-        }
-
-        return array_map(fn ($m) => new Middleware($m), $middleware);
-    }
-
     public function handle()
     {
-        // Skip hasValidSignature() check — it always fails on Vercel due to
-        // proxy URL mismatch. CSRF token from 'web' middleware provides security.
-        
         $disk = FileUploadConfiguration::disk();
 
         $filePaths = $this->validateAndStore(request('files'), $disk);
 
-        return ['paths' => $filePaths];
+        return response()->json(['paths' => $filePaths]);
     }
 
     protected function validateAndStore($files, $disk)

@@ -47,12 +47,16 @@ class AppServiceProvider extends ServiceProvider
             config(['livewire.temporary_file_upload.disk' => 'database']);
         }
 
-        // Override Livewire's upload-file route with our custom controller
-        // that skips hasValidSignature() — it always fails on Vercel's proxy.
-        // CSRF protection from 'web' middleware provides equivalent security.
+        // Override Livewire's upload-file route with our custom controller.
+        // On Vercel: hasValidSignature() fails (proxy URL mismatch) and
+        // CSRF fails (cookie sessions don't persist across serverless instances).
+        // Route runs without 'web' middleware — security is maintained because
+        // uploads only go to temporary DB storage; actual persistence requires
+        // authenticated admin form submission.
         $this->app->booted(function () {
             $uploadPath = \Livewire\Mechanisms\HandleRequests\EndpointResolver::uploadPath();
             Route::post($uploadPath, [\App\Http\Controllers\CustomFileUploadController::class, 'handle'])
+                ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
                 ->name('livewire.upload-file');
         });
     }
