@@ -67,6 +67,10 @@ return [
             'secret' => env('CLOUDINARY_API_SECRET'),
         ],
 
+        'database' => [
+            'driver' => 'database',
+        ],
+
     ],
 
     /*

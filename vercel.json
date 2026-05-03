@@ -39,7 +39,7 @@
         "CLOUDINARY_API_KEY": "441995942879594",
         "CLOUDINARY_API_SECRET": "c22chya68KOvyS6947NCOzRaMNg",
         "FILESYSTEM_DISK": "cloudinary",
-        "LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK": "public",
+        "LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK": "database",
         "SESSION_DRIVER": "cookie",
         "CACHE_STORE": "array"
     }

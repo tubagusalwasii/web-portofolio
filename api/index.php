@@ -37,7 +37,7 @@ $envVars = [
     'LOG_CHANNEL'         => 'stderr',
     'SESSION_DRIVER'      => 'cookie',
     'CACHE_STORE'         => 'array',
-    'LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK' => 'public',
+    'LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK' => 'database',
 
     // Bootstrap cache paths (CRITICAL for read-only filesystem)
     // These redirect PackageManifest and ServiceManifest writes to /tmp
