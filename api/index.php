@@ -57,6 +57,10 @@ foreach ($envVars as $key => $value) {
 // Force HTTPS for all requests on Vercel to fix Livewire signed URL validation
 $_SERVER['HTTPS'] = 'on';
 
+// Mark this as a Vercel environment
+$_ENV['VERCEL'] = '1';
+$_SERVER['VERCEL'] = '1';
+
 // 3. Define LARAVEL_START constant
 define('LARAVEL_START', microtime(true));
 
@@ -70,7 +74,16 @@ $app = require_once __DIR__ . '/../bootstrap/app.php';
 //    This ensures all storage_path() calls point to writable /tmp
 $app->useStoragePath('/tmp/storage');
 
-// 7. Handle the request (this boots providers and processes the request)
+// 7. Bypass CSRF for Livewire upload routes
+//    On Vercel serverless, cookie sessions don't persist between requests,
+//    making CSRF token verification impossible.
+\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::except([
+    'livewire-*/upload-file',
+    'livewire/upload-file',
+    '*/upload-file',
+]);
+
+// 8. Handle the request (this boots providers and processes the request)
 try {
     $app->handleRequest(Illuminate\Http\Request::capture());
 } catch (\Throwable $e) {
