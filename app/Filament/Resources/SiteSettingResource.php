@@ -9,6 +9,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Actions;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class SiteSettingResource extends Resource
 {
@@ -34,7 +36,10 @@ class SiteSettingResource extends Resource
                     ->disk(config('filesystems.default', 'public'))
                     ->downloadable()
                     ->directory('settings')
-                    ->required(),
+                    ->required()
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, string $disk, string $directory) {
+                        return static::saveFileToCloudinary($file, $disk, $directory);
+                    }),
                 Forms\Components\Textarea::make('about_description')
                     ->label('Deskripsi Tentang Saya')
                     ->rows(5)
@@ -47,8 +52,44 @@ class SiteSettingResource extends Resource
                     ->disk(config('filesystems.default', 'public'))
                     ->acceptedFileTypes(['application/pdf'])
                     ->directory('settings')
-                    ->required(),
+                    ->required()
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, string $disk, string $directory) {
+                        return static::saveFileToCloudinary($file, $disk, $directory);
+                    }),
             ]);
+    }
+
+    /**
+     * Transfer file from database temporary storage to Cloudinary via /tmp.
+     * 
+     * Cloudinary's upload API cannot handle PHP stream resources from the
+     * database adapter. We first write the file to /tmp, then upload from there.
+     */
+    protected static function saveFileToCloudinary(TemporaryUploadedFile $file, string $disk, string $directory): string
+    {
+        $filename = $file->getFilename();
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $newFilename = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+        
+        // Read content from the temporary storage (database disk)
+        $content = $file->get();
+        
+        if ($content === false || $content === null) {
+            throw new \RuntimeException("Could not read temporary file: {$filename}");
+        }
+        
+        // Write to /tmp so Cloudinary can upload from a real file path
+        $tmpPath = '/tmp/' . uniqid('upload_') . '_' . basename($filename);
+        file_put_contents($tmpPath, $content);
+        
+        try {
+            // Upload to Cloudinary using the file path (which Cloudinary can handle)
+            Storage::disk($disk)->put($newFilename, file_get_contents($tmpPath));
+            return $newFilename;
+        } finally {
+            // Always clean up the temp file
+            @unlink($tmpPath);
+        }
     }
 
     public static function table(Table $table): Table
@@ -80,3 +121,4 @@ class SiteSettingResource extends Resource
         ];
     }
 }
+
