@@ -115,7 +115,7 @@ function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download
         </div>
         <div class="container two-col">
           <div data-aos="fade-right">
-            <p>{{ $settings->about_description ?? "Data tentang saya belum tersedia." }}</p>
+            <p style="text-align: justify;">{{ $settings->about_description ?? "Data tentang saya belum tersedia." }}</p>
             <div class="badges" style="margin-top: 1rem;">
               @php
                 $badges = $settings->about_badges ?? ["Problem Solver", "Creative Thinker", "Team Player"];
