@@ -69,9 +69,21 @@ class SiteSettingResource extends Resource
     protected static function saveFileToCloudinary(TemporaryUploadedFile $file, string $disk, string $directory): string
     {
         $filename = $file->getFilename();
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
         $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
+        
+        // Determine resource type — must match the URL construction in welcome.blade.php
+        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
+        
+        if (in_array($extension, $imageExts)) {
+            $resourceType = 'image';
+        } elseif (in_array($extension, $videoExts)) {
+            $resourceType = 'video';
+        } else {
+            $resourceType = 'raw';
+        }
         
         // Read content from the temporary storage (database disk)
         $content = $file->get();
@@ -86,12 +98,13 @@ class SiteSettingResource extends Resource
         
         try {
             // Upload directly via Cloudinary's API with the file path.
-            // This is the most reliable method — Cloudinary natively handles
-            // file paths without stream/fopen issues.
+            // Using explicit resource_type (not 'auto') to ensure consistency
+            // with URL construction — 'auto' can store PDFs as 'image' type
+            // while our URL builder assumes 'raw' for non-image/video files.
             $cloudinary = app(\Cloudinary\Cloudinary::class);
             $cloudinary->uploadApi()->upload($tmpPath, [
                 'public_id' => $publicId,
-                'resource_type' => 'auto',
+                'resource_type' => $resourceType,
                 'overwrite' => true,
             ]);
             
