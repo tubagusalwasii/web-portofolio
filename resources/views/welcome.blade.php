@@ -89,6 +89,7 @@ function safeStorageUrl(string $path, string $fallbackAsset = ''): string {
             <div class="badges" style="margin-top: 1rem;">
               @php
                 $badges = $settings->about_badges ?? ["Problem Solver", "Creative Thinker", "Team Player"];
+                if (is_string($badges)) $badges = json_decode($badges, true) ?? [];
               @endphp
               @foreach($badges as $badge)
                 <span class="badge">{{ $badge }}</span>
