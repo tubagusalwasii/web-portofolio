@@ -28,6 +28,7 @@ class CertificateResource extends Resource
                     ->disk(config('filesystems.default', 'public'))
                     ->directory('sertifikat')
                     ->required()
+                    ->fetchFileInformation(false)
                     ->saveUploadedFileUsing(function (Forms\Components\FileUpload $component, $file, $record): string {
                         return self::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory());
                     }),

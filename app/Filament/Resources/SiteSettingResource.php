@@ -37,6 +37,7 @@ class SiteSettingResource extends Resource
                     ->downloadable()
                     ->directory('settings')
                     ->required()
+                    ->fetchFileInformation(false)
                     ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Forms\Components\FileUpload $component) {
                         return static::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory() ?? 'settings');
                     }),
@@ -53,6 +54,7 @@ class SiteSettingResource extends Resource
                     ->acceptedFileTypes(['application/pdf'])
                     ->directory('settings')
                     ->required()
+                    ->fetchFileInformation(false)
                     ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Forms\Components\FileUpload $component) {
                         return static::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory() ?? 'settings');
                     }),
