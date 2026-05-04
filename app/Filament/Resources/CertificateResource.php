@@ -62,5 +62,4 @@ class CertificateResource extends Resource
             'index' => CertificateResource\Pages\ListCertificates::route('/'),
         ];
     }
-    }
 }
