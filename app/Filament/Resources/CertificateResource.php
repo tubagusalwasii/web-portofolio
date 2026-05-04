@@ -28,10 +28,7 @@ class CertificateResource extends Resource
                     ->disk(config('filesystems.default', 'public'))
                     ->directory('sertifikat')
                     ->required()
-                    ->fetchFileInformation(false)
-                    ->saveUploadedFileUsing(function (Forms\Components\FileUpload $component, $file, $record): string {
-                        return self::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory());
-                    }),
+                    ->fetchFileInformation(false),
                 Forms\Components\TextInput::make('sort_order')
                     ->numeric()
                     ->default(0),
@@ -65,47 +62,5 @@ class CertificateResource extends Resource
             'index' => CertificateResource\Pages\ListCertificates::route('/'),
         ];
     }
-    /**
-     * Transfer file from database temporary storage to Cloudinary via /tmp.
-     */
-    protected static function saveFileToCloudinary($file, string $disk, string $directory): string
-    {
-        $filename = $file->getFilename();
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
-        $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
-        
-        // Determine resource type matching Cloudinary adapter
-        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
-        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
-        
-        if (in_array($extension, $imageExts)) {
-            $resourceType = 'image';
-        } elseif (in_array($extension, $videoExts)) {
-            $resourceType = 'video';
-        } else {
-            $resourceType = 'raw';
-        }
-        
-        $content = $file->get();
-        if ($content === false || $content === null) {
-            throw new \RuntimeException("Could not read temporary file: {$filename}");
-        }
-        
-        $tmpPath = '/tmp/' . uniqid('upload_') . '_' . basename($filename);
-        file_put_contents($tmpPath, $content);
-        
-        try {
-            $cloudinary = app(\Cloudinary\Cloudinary::class);
-            $cloudinary->uploadApi()->upload($tmpPath, [
-                'public_id' => $publicId,
-                'resource_type' => $resourceType,
-                'overwrite' => true,
-            ]);
-            
-            return $directory . '/' . $storageName;
-        } finally {
-            @unlink($tmpPath);
-        }
     }
 }

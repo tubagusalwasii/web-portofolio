@@ -37,10 +37,7 @@ class SiteSettingResource extends Resource
                     ->downloadable()
                     ->directory('settings')
                     ->required()
-                    ->fetchFileInformation(false)
-                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Forms\Components\FileUpload $component) {
-                        return static::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory() ?? 'settings');
-                    }),
+                    ->fetchFileInformation(false),
                 Forms\Components\Textarea::make('about_description')
                     ->label('Deskripsi Tentang Saya')
                     ->rows(5)
@@ -54,70 +51,8 @@ class SiteSettingResource extends Resource
                     ->acceptedFileTypes(['application/pdf'])
                     ->directory('settings')
                     ->required()
-                    ->fetchFileInformation(false)
-                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Forms\Components\FileUpload $component) {
-                        return static::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory() ?? 'settings');
-                    }),
+                    ->fetchFileInformation(false),
             ]);
-    }
-
-    /**
-     * Transfer file from database temporary storage to Cloudinary via /tmp.
-     * 
-     * Uses Cloudinary's upload API directly with a file path for maximum
-     * reliability. All files are uploaded as 'image' resource type because
-     * Cloudinary's free plan blocks direct access to 'raw' type resources (401).
-     * Cloudinary supports PDFs under 'image' type — accessing the URL with
-     * .pdf extension serves the original PDF file.
-     */
-    protected static function saveFileToCloudinary(TemporaryUploadedFile $file, string $disk, string $directory): string
-    {
-        $filename = $file->getFilename();
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
-        $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
-        
-        // Determine resource type matching CloudinaryStorageAdapter logic
-        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
-        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
-        
-        if (in_array($extension, $imageExts)) {
-            $resourceType = 'image';
-        } elseif (in_array($extension, $videoExts)) {
-            $resourceType = 'video';
-        } else {
-            // PDFs and others are 'raw' in Cloudinary adapter
-            $resourceType = 'raw';
-        }
-        
-        // Read content from the temporary storage (database disk)
-        $content = $file->get();
-        
-        if ($content === false || $content === null) {
-            throw new \RuntimeException("Could not read temporary file: {$filename}");
-        }
-        
-        // Write to /tmp so Cloudinary can upload from a real file path
-        $tmpPath = '/tmp/' . uniqid('upload_') . '_' . basename($filename);
-        file_put_contents($tmpPath, $content);
-        
-        try {
-            // Upload via Cloudinary's API. 
-            // We use the determined resource_type so the Cloudinary adapter 
-            // can "find" the file during Filament's existence checks.
-            $cloudinary = app(\Cloudinary\Cloudinary::class);
-            $cloudinary->uploadApi()->upload($tmpPath, [
-                'public_id' => $publicId,
-                'resource_type' => $resourceType,
-                'overwrite' => true,
-            ]);
-            
-            // Return relative path for Filament compatibility
-            return $directory . '/' . $storageName;
-        } finally {
-            // Always clean up the temp file
-            @unlink($tmpPath);
-        }
     }
 
     public static function table(Table $table): Table
