@@ -62,14 +62,16 @@ class SiteSettingResource extends Resource
     /**
      * Transfer file from database temporary storage to Cloudinary via /tmp.
      * 
-     * Cloudinary's upload API cannot handle PHP stream resources from the
-     * database adapter. We first write the file to /tmp, then upload from there.
+     * Uses Cloudinary's upload API directly with a file path for maximum
+     * reliability. The Storage adapter's writeStream() doesn't reliably
+     * handle PHP stream resources for all resource types (e.g. raw/PDF).
      */
     protected static function saveFileToCloudinary(TemporaryUploadedFile $file, string $disk, string $directory): string
     {
         $filename = $file->getFilename();
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+        $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
         
         // Read content from the temporary storage (database disk)
         $content = $file->get();
@@ -78,20 +80,21 @@ class SiteSettingResource extends Resource
             throw new \RuntimeException("Could not read temporary file: {$filename}");
         }
         
-        // Write to /tmp so Cloudinary can upload from a real file path.
-        // Cloudinary's upload API treats raw string content as a file path and
-        // calls fopen() on it, which fails with null bytes in binary data.
-        // By using putFileAs() with a File object, the adapter uses writeStream()
-        // which passes a stream resource that Cloudinary can handle.
+        // Write to /tmp so Cloudinary can upload from a real file path
         $tmpPath = '/tmp/' . uniqid('upload_') . '_' . basename($filename);
         file_put_contents($tmpPath, $content);
         
         try {
-            // Upload to Cloudinary using putFileAs with a real File object.
-            // This avoids passing raw binary content as a string to Cloudinary's
-            // upload() API which would try to fopen() it as a filename.
-            $tmpFile = new \Illuminate\Http\File($tmpPath);
-            Storage::disk($disk)->putFileAs($directory, $tmpFile, $storageName);
+            // Upload directly via Cloudinary's API with the file path.
+            // This is the most reliable method — Cloudinary natively handles
+            // file paths without stream/fopen issues.
+            $cloudinary = app(\Cloudinary\Cloudinary::class);
+            $cloudinary->uploadApi()->upload($tmpPath, [
+                'public_id' => $publicId,
+                'resource_type' => 'auto',
+                'overwrite' => true,
+            ]);
+            
             return $directory . '/' . $storageName;
         } finally {
             // Always clean up the temp file
