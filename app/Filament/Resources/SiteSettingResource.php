@@ -70,10 +70,9 @@ class SiteSettingResource extends Resource
     {
         $filename = $file->getFilename();
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
         $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
         
-        // Determine resource type — must match the URL construction in welcome.blade.php
+        // Determine resource type
         $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
         $videoExts = ['mp4', 'webm', 'mov', 'avi'];
         
@@ -98,17 +97,18 @@ class SiteSettingResource extends Resource
         
         try {
             // Upload directly via Cloudinary's API with the file path.
-            // Using explicit resource_type (not 'auto') to ensure consistency
-            // with URL construction — 'auto' can store PDFs as 'image' type
-            // while our URL builder assumes 'raw' for non-image/video files.
             $cloudinary = app(\Cloudinary\Cloudinary::class);
-            $cloudinary->uploadApi()->upload($tmpPath, [
+            $result = $cloudinary->uploadApi()->upload($tmpPath, [
                 'public_id' => $publicId,
                 'resource_type' => $resourceType,
                 'overwrite' => true,
             ]);
             
-            return $directory . '/' . $storageName;
+            // Return the secure_url directly from Cloudinary's response.
+            // This guarantees the URL works for delivery — constructing URLs
+            // manually can fail because Cloudinary blocks direct access to
+            // 'raw' type resources (401) without proper signed URLs.
+            return $result['secure_url'];
         } finally {
             // Always clean up the temp file
             @unlink($tmpPath);
