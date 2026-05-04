@@ -27,7 +27,10 @@ class CertificateResource extends Resource
                     ->image()
                     ->disk(config('filesystems.default', 'public'))
                     ->directory('sertifikat')
-                    ->required(),
+                    ->required()
+                    ->saveUploadedFileUsing(function (Forms\Components\FileUpload $component, $file, $record): string {
+                        return self::saveFileToCloudinary($file, $component->getDiskName(), $component->getDirectory());
+                    }),
                 Forms\Components\TextInput::make('sort_order')
                     ->numeric()
                     ->default(0),
@@ -60,5 +63,36 @@ class CertificateResource extends Resource
         return [
             'index' => CertificateResource\Pages\ListCertificates::route('/'),
         ];
+    }
+    /**
+     * Transfer file from database temporary storage to Cloudinary via /tmp.
+     */
+    protected static function saveFileToCloudinary($file, string $disk, string $directory): string
+    {
+        $filename = $file->getFilename();
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+        $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
+        
+        $content = $file->get();
+        if ($content === false || $content === null) {
+            throw new \RuntimeException("Could not read temporary file: {$filename}");
+        }
+        
+        $tmpPath = '/tmp/' . uniqid('upload_') . '_' . basename($filename);
+        file_put_contents($tmpPath, $content);
+        
+        try {
+            $cloudinary = app(\Cloudinary\Cloudinary::class);
+            $cloudinary->uploadApi()->upload($tmpPath, [
+                'public_id' => $publicId,
+                'resource_type' => 'image',
+                'overwrite' => true,
+            ]);
+            
+            return $directory . '/' . $storageName;
+        } finally {
+            @unlink($tmpPath);
+        }
     }
 }
