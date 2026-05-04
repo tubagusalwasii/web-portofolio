@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('site_settings', function (Blueprint $table) {
-            //
+            $table->json('about_badges')->nullable()->after('about_description');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('site_settings', function (Blueprint $table) {
-            //
+            $table->dropColumn('about_badges');
         });
     }
 };
