@@ -4,20 +4,24 @@
  * All files are uploaded as 'image' type to avoid Cloudinary's
  * raw file access restrictions (401 on free plan).
  */
-function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download = false): string {
+function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download = false, string $downloadName = ''): string {
     if (str_starts_with($path, 'assets/')) {
         return asset($path);
     }
     if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
         if ($download && str_contains($path, 'res.cloudinary.com') && !str_contains($path, 'fl_attachment')) {
-            return str_replace('/upload/', '/upload/fl_attachment/', $path);
+            $flag = 'fl_attachment' . ($downloadName ? ':' . str_replace([' ', "'"], ['_', ''], $downloadName) : '');
+            return str_replace('/upload/', "/upload/{$flag}/", $path);
         }
         return $path;
     }
     
     $cloudName = config('filesystems.disks.cloudinary.cloud');
     if ($cloudName) {
-        $transform = $download ? 'fl_attachment/' : '';
+        $transform = '';
+        if ($download) {
+            $transform = 'fl_attachment' . ($downloadName ? ':' . str_replace([' ', "'"], ['_', ''], $downloadName) : '') . '/';
+        }
         return "https://res.cloudinary.com/{$cloudName}/image/upload/{$transform}{$path}";
     }
     
@@ -79,7 +83,7 @@ function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download
               <span id="typing-effect"></span>
             </p>
             <div class="hero-cta">
-              <a class="button primary" href="{{ $settings->cv_link ? safeStorageUrl($settings->cv_link, 'assets/TubagusAlwasiCV.pdf', true) : asset('assets/TubagusAlwasiCV.pdf') }}" download="Tubagus_Alwasi'i_CV.pdf">
+              <a class="button primary" href="{{ $settings->cv_link ? safeStorageUrl($settings->cv_link, 'assets/TubagusAlwasiCV.pdf', true, 'TUBAGUS ALWASI I CV') : asset('assets/TubagusAlwasiCV.pdf') }}" download="TUBAGUS ALWASI'I CV.pdf">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Download CV
               </a>
