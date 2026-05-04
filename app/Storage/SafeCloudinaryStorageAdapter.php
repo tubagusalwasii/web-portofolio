@@ -27,6 +27,10 @@ class SafeCloudinaryStorageAdapter extends CloudinaryStorageAdapter
     {
         [$id, $type] = parent::prepareResource($path);
         
+        // Normalize the ID by removing leading dot-slash or slash
+        // Cloudinary rejects IDs starting with './'
+        $id = ltrim($id, './\\');
+        
         if ($type === 'raw') {
             $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
             $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
