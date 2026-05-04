@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class project extends Model
+class Project extends Model
 {
     protected $fillable = [
         'category_id',

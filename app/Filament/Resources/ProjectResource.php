@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Pages;
-use App\Models\project;
+use App\Models\Project;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -13,7 +13,7 @@ use Filament\Actions;
 
 class ProjectResource extends Resource
 {
-    protected static ?string $model = project::class;
+    protected static ?string $model = Project::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
 
