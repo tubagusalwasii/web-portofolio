@@ -18,11 +18,23 @@ function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download
     
     $cloudName = config('filesystems.disks.cloudinary.cloud');
     if ($cloudName) {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
+        
+        if (in_array($ext, $imageExts)) {
+            $type = 'image';
+        } elseif (in_array($ext, $videoExts)) {
+            $type = 'video';
+        } else {
+            $type = 'raw';
+        }
+
         $transform = '';
         if ($download) {
             $transform = 'fl_attachment' . ($downloadName ? ':' . str_replace([' ', "'"], ['_', ''], $downloadName) : '') . '/';
         }
-        return "https://res.cloudinary.com/{$cloudName}/image/upload/{$transform}{$path}";
+        return "https://res.cloudinary.com/{$cloudName}/{$type}/upload/{$transform}{$path}";
     }
     
     try {

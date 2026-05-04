@@ -97,6 +97,18 @@ class ProjectResource extends Resource
         $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
         $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
         
+        // Determine resource type matching Cloudinary adapter
+        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
+        
+        if (in_array($extension, $imageExts)) {
+            $resourceType = 'image';
+        } elseif (in_array($extension, $videoExts)) {
+            $resourceType = 'video';
+        } else {
+            $resourceType = 'raw';
+        }
+        
         $content = $file->get();
         if ($content === false || $content === null) {
             throw new \RuntimeException("Could not read temporary file: {$filename}");
@@ -109,7 +121,7 @@ class ProjectResource extends Resource
             $cloudinary = app(\Cloudinary\Cloudinary::class);
             $cloudinary->uploadApi()->upload($tmpPath, [
                 'public_id' => $publicId,
-                'resource_type' => 'image',
+                'resource_type' => $resourceType,
                 'overwrite' => true,
             ]);
             
