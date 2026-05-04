@@ -28,6 +28,18 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        // Register custom 'cloudinary' driver using our safe adapter to avoid admin 404 crashes
+        Storage::extend('cloudinary', function ($app, $config) {
+            $cloudinary = $app->make(\Cloudinary\Cloudinary::class);
+            $adapter = new \App\Storage\SafeCloudinaryStorageAdapter($cloudinary, null, $config['prefix'] ?? null);
+            
+            return new \Illuminate\Filesystem\FilesystemAdapter(
+                new \League\Flysystem\Filesystem($adapter, $config),
+                $adapter,
+                $config
+            );
+        });
+
         // Set the public URL for livewire preview if requested
         Storage::disk('database')->buildTemporaryUrlsUsing(function ($path, $expiration, $options) {
             return URL::temporarySignedRoute(
