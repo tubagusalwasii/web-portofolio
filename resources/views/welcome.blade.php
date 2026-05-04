@@ -1,8 +1,8 @@
 @php
 /**
  * Resolve a storage URL for Cloudinary-hosted files.
- * Constructs the URL directly instead of using adminApi()->asset()
- * which makes an extra API call and can throw NotFound exceptions.
+ * All files are uploaded as 'image' type to avoid Cloudinary's
+ * raw file access restrictions (401 on free plan).
  */
 function safeStorageUrl(string $path, string $fallbackAsset = ''): string {
     if (str_starts_with($path, 'assets/')) {
@@ -14,21 +14,8 @@ function safeStorageUrl(string $path, string $fallbackAsset = ''): string {
     
     $cloudName = config('filesystems.disks.cloudinary.cloud');
     if ($cloudName) {
-        // Determine resource type from file extension
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
-        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
-        
-        if (in_array($ext, $imageExts)) {
-            $type = 'image';
-        } elseif (in_array($ext, $videoExts)) {
-            $type = 'video';
-        } else {
-            $type = 'raw';
-        }
-        
-        // Construct Cloudinary URL directly (no API call needed)
-        return "https://res.cloudinary.com/{$cloudName}/{$type}/upload/{$path}";
+        // All files uploaded as 'image' type (PDFs work under image type too)
+        return "https://res.cloudinary.com/{$cloudName}/image/upload/{$path}";
     }
     
     // Fallback: try Storage::url with error handling

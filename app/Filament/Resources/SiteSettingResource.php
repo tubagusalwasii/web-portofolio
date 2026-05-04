@@ -63,26 +63,17 @@ class SiteSettingResource extends Resource
      * Transfer file from database temporary storage to Cloudinary via /tmp.
      * 
      * Uses Cloudinary's upload API directly with a file path for maximum
-     * reliability. The Storage adapter's writeStream() doesn't reliably
-     * handle PHP stream resources for all resource types (e.g. raw/PDF).
+     * reliability. All files are uploaded as 'image' resource type because
+     * Cloudinary's free plan blocks direct access to 'raw' type resources (401).
+     * Cloudinary supports PDFs under 'image' type — accessing the URL with
+     * .pdf extension serves the original PDF file.
      */
     protected static function saveFileToCloudinary(TemporaryUploadedFile $file, string $disk, string $directory): string
     {
         $filename = $file->getFilename();
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $storageName = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
         $publicId = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME);
-        
-        // Determine resource type
-        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
-        $videoExts = ['mp4', 'webm', 'mov', 'avi'];
-        
-        if (in_array($extension, $imageExts)) {
-            $resourceType = 'image';
-        } elseif (in_array($extension, $videoExts)) {
-            $resourceType = 'video';
-        } else {
-            $resourceType = 'raw';
-        }
         
         // Read content from the temporary storage (database disk)
         $content = $file->get();
@@ -96,19 +87,21 @@ class SiteSettingResource extends Resource
         file_put_contents($tmpPath, $content);
         
         try {
-            // Upload directly via Cloudinary's API with the file path.
+            // Upload via Cloudinary's API. Always use 'image' resource type:
+            // - Images: naturally 'image' type
+            // - PDFs: Cloudinary supports PDFs as 'image' type, and accessing
+            //   the URL with .pdf extension serves the original PDF
+            // - 'raw' type is blocked on Cloudinary free plan (401 error)
             $cloudinary = app(\Cloudinary\Cloudinary::class);
-            $result = $cloudinary->uploadApi()->upload($tmpPath, [
+            $cloudinary->uploadApi()->upload($tmpPath, [
                 'public_id' => $publicId,
-                'resource_type' => $resourceType,
+                'resource_type' => 'image',
                 'overwrite' => true,
             ]);
             
-            // Return the secure_url directly from Cloudinary's response.
-            // This guarantees the URL works for delivery — constructing URLs
-            // manually can fail because Cloudinary blocks direct access to
-            // 'raw' type resources (401) without proper signed URLs.
-            return $result['secure_url'];
+            // Return relative path for Filament compatibility
+            // (full URLs break FileUpload component display)
+            return $directory . '/' . $storageName;
         } finally {
             // Always clean up the temp file
             @unlink($tmpPath);
