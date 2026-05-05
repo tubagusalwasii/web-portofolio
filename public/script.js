@@ -14,6 +14,21 @@ navToggle?.addEventListener('click', () => {
   const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
   navToggle.setAttribute('aria-expanded', !isExpanded);
   navMenu.classList.toggle('open');
+  
+  // Kunci scroll body saat menu terbuka
+  document.body.classList.toggle('no-scroll');
+});
+
+// Menutup menu saat link diklik (Mobile)
+const allNavLinks = document.querySelectorAll('.primary-nav a, .brand');
+allNavLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    if (navMenu.classList.contains('open')) {
+      navMenu.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('no-scroll');
+    }
+  });
 });
 
 // ===== Sorot Link Aktif Saat Scroll (Scrollspy) - DIPERBAIKI =====
@@ -61,6 +76,10 @@ tabs.forEach(tab => {
     tab.classList.add('active');
     if (targetPanel) {
       targetPanel.classList.add('active');
+      // Refresh AOS untuk animasi di dalam tab baru
+      setTimeout(() => {
+        AOS.refresh();
+      }, 100);
     }
   });
 });

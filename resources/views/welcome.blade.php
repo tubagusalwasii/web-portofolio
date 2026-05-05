@@ -4,7 +4,10 @@
  * All files are uploaded as 'image' type to avoid Cloudinary's
  * raw file access restrictions (401 on free plan).
  */
-function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download = false, string $downloadName = ''): string {
+function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $download = false, string $downloadName = ''): string {
+    if (!$path) {
+        return $fallbackAsset ? asset($fallbackAsset) : '';
+    }
     if (str_starts_with($path, 'assets/')) {
         return asset($path);
     }
@@ -52,7 +55,7 @@ function safeStorageUrl(string $path, string $fallbackAsset = '', bool $download
     <title>Portofolio — {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}</title>
     <meta name="description" content="Portofolio pribadi {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}, seorang mahasiswa Teknik Informatika dengan minat pada UI/UX, Mobile Development, dan AI.">
     
-    <link rel="icon" href="{{ asset('assets/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ $settings->site_logo ? safeStorageUrl($settings->site_logo) : asset('assets/favicon.svg') }}" type="image/svg+xml">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

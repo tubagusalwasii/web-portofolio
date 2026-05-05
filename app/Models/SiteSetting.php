@@ -14,6 +14,7 @@ class SiteSetting extends Model
         'cv_link',
         'hero_image',
         'about_image',
+        'site_logo',
     ];
 
     protected $casts = [

@@ -27,6 +27,13 @@ class SiteSettingResource extends Resource
                 Forms\Components\TextInput::make('hero_title')
                     ->label('Judul Utama (Hero)')
                     ->required(),
+                Forms\Components\FileUpload::make('site_logo')
+                    ->label('Logo Situs (Favicon)')
+                    ->disk(config('filesystems.default', 'public'))
+                    ->directory('settings')
+                    ->image()
+                    ->helperText('Upload logo dalam format SVG/PNG (Rasio 1:1 direkomendasikan)')
+                    ->fetchFileInformation(false),
                 Forms\Components\TagsInput::make('hero_typing')
                     ->label('Efek Ketik (Typing Text)')
                     ->placeholder('Tambahkan kata dan tekan enter')
