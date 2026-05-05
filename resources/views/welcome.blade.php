@@ -416,7 +416,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
     <script src="{{ asset('script.js') }}"></script>
     <script>
       // Efek Mengetik dinamis dari database
-      const heroTyping = {!! $settings->hero_typing ?? '["UI/UX Designer", "Mobile Developer", "Machine Learning Enthusiast"]' !!};
+      const heroTyping = @json($settings->hero_typing ?? ["UI/UX Designer", "Mobile Developer", "Machine Learning Enthusiast"]);
       new Typed('#typing-effect', {
         strings: heroTyping,
         typeSpeed: 50,
