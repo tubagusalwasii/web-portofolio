@@ -145,27 +145,44 @@ if (contactForm) {
       event.preventDefault(); // Mencegah form refresh halaman
 
       // Ganti dengan ID dan Key Anda dari EmailJS
-      const serviceID = 'service_y10xhjb';
+      const serviceID = 'service_7b3dnls'; // Updated Service ID
       const templateID = 'template_vpz37de';
       const publicKey = 'R0_eQUjSrQlI35F3R';
 
       // Mengubah teks tombol untuk feedback
-      if (submitBtn) submitBtn.textContent = 'Mengirim...';
+      if (submitBtn) {
+        submitBtn.textContent = 'Mengirim...';
+        submitBtn.disabled = true; // Kunci tombol saat proses
+      }
 
       emailjs.sendForm(serviceID, templateID, this, publicKey)
         .then(() => {
           // Jika berhasil
-          if (submitBtn) submitBtn.textContent = 'Pesan Terkirim!';
+          if (submitBtn) {
+            submitBtn.textContent = 'Pesan Terkirim!';
+            submitBtn.style.backgroundColor = '#10b981'; // Hijau sukses
+          }
           contactForm.reset(); // Mengosongkan form
           setTimeout(() => {
-            if (submitBtn) submitBtn.textContent = 'Kirim Pesan'; // Kembalikan teks tombol setelah beberapa detik
+            if (submitBtn) {
+              submitBtn.textContent = 'Kirim Pesan';
+              submitBtn.disabled = false;
+              submitBtn.style.backgroundColor = ''; // Kembali ke warna asal
+            }
           }, 3000);
         }, (err) => {
           // Jika gagal
-          if (submitBtn) submitBtn.textContent = 'Gagal Mengirim';
-          alert(JSON.stringify(err));
+          if (submitBtn) {
+            submitBtn.textContent = 'Gagal Mengirim';
+            submitBtn.style.backgroundColor = '#ef4444'; // Merah error
+            submitBtn.disabled = false;
+          }
+          console.error('EmailJS Error:', err);
           setTimeout(() => {
-            if (submitBtn) submitBtn.textContent = 'Kirim Pesan';
+            if (submitBtn) {
+              submitBtn.textContent = 'Kirim Pesan';
+              submitBtn.style.backgroundColor = '';
+            }
           }, 3000);
         });
     });
