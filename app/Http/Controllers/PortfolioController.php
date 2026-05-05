@@ -17,12 +17,7 @@ class PortfolioController extends Controller
         $experiences = Experience::orderBy('order')->get();
         
         // Load settings from the single record
-        $settings = DB::table('site_settings')->first();
-        
-        // If settings don't exist yet, pass an empty object
-        if (!$settings) {
-            $settings = (object)[];
-        }
+        $settings = \App\Models\SiteSetting::first() ?? (object)[];
 
         return view('welcome', compact('projects', 'certificates', 'settings', 'experiences'));
     }
