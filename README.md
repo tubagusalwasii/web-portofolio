@@ -1,18 +1,17 @@
-# Portofolio — Template
-Website portofolio sederhana, cepat, dan responsif (HTML/CSS/JS murni).
+# Personal Portfolio & Digital Resume
 
-## Cara Pakai
-1. Ganti teks *Nama Kamu*, kontak, dan tautan sosial di `index.html`.
-2. Ubah warna/tema di `style.css` jika perlu.
-3. Tambah proyek dengan menyalin blok `<article class="card">` di bagian **Proyek Pilihan**.
-4. Buka `index.html` langsung di browser, atau deploy ke:
-   - **GitHub Pages**: push ke repo dan aktifkan Pages dari branch `main` folder root.
-   - **Netlify / Vercel**: drag & drop folder ini ke dashboard.
-5. Ganti `assets/avatar.svg` dengan foto kamu (nama file bisa sama agar tidak perlu ubah HTML).
+Sebuah website portofolio dinamis yang dikembangkan untuk menampilkan perjalanan profesional, proyek-proyek teknis, dan pencapaian saya sebagai Software Engineer.
 
-## Fitur
-- Navigasi lengket, tema gelap/terang, dan menu mobile.
-- Desain modern dengan card, timeline, dan form kontak (simulasi).
-- Aksesibilitas dasar: skip link, label form, fokus jelas.
+## 🚀 Tech Stack
+- **Framework:** Laravel 10
+- **Frontend:** Blade Templating, Tailwind CSS, JavaScript
+- **Database:** PostgreSQL / MySQL
+- **Deployment:** Vercel
 
-Selamat berkarya!
+## ✨ Fitur Utama
+- **Dynamic Content Management:** Menggunakan Laravel backend untuk mengelola data proyek dan pengalaman kerja.
+- **Responsive Design:** Tampilan antarmuka yang modern dan responsif di semua perangkat (Desktop & Mobile).
+- **Dark/Light Mode:** Implementasi tema yang nyaman untuk pengguna.
+
+## 🔗 Live Demo
+Kunjungi website secara langsung: [www.tubagusalwasii.my.id](https://www.tubagusalwasii.my.id) (atau link vercel kamu).
