@@ -31,3 +31,38 @@ Route::get('/run-migration', function () {
         return "Migration failed: " . $e->getMessage();
     }
 });
+
+// Temporary: Check what categories exist in the database
+Route::get('/debug-categories', function () {
+    $categories = \Illuminate\Support\Facades\DB::table('categories')->get();
+    $nextId = \Illuminate\Support\Facades\DB::select("SELECT nextval(pg_get_serial_sequence('categories', 'id')) as next_id");
+    return response()->json([
+        'total' => $categories->count(),
+        'categories' => $categories,
+        'sequence_next_id' => $nextId[0]->next_id ?? 'unknown',
+    ]);
+});
+
+// Temporary: Seed categories directly from the app
+Route::get('/seed-categories', function () {
+    $names = [
+        'Mobile Development',
+        'Machine Learning',
+        'UI/UX Design',
+        'Web Development',
+        'Data Science',
+        'DevOps',
+    ];
+
+    $created = [];
+    foreach ($names as $name) {
+        $cat = \App\Models\Category::firstOrCreate(['name' => $name]);
+        $created[] = ['id' => $cat->id, 'name' => $cat->name, 'was_new' => $cat->wasRecentlyCreated];
+    }
+
+    return response()->json([
+        'message' => 'Categories seeded!',
+        'categories' => $created,
+        'total_in_db' => \Illuminate\Support\Facades\DB::table('categories')->count(),
+    ]);
+});
