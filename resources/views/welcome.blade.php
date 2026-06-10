@@ -30,6 +30,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
         } elseif (in_array($ext, $videoExts)) {
             $type = 'video';
         } else {
+            // Use 'raw' for non-media files like PDFs
             $type = 'raw';
         }
 
@@ -40,8 +41,14 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
         return "https://res.cloudinary.com/{$cloudName}/{$type}/upload/{$transform}{$path}";
     }
     
+    // Local disk: verify the file actually exists before returning URL
     try {
-        return Storage::url($path);
+        $disk = \Illuminate\Support\Facades\Storage::disk(config('filesystems.default', 'public'));
+        if ($disk->exists($path)) {
+            return $disk->url($path);
+        }
+        // File doesn't exist in storage, use fallback
+        return $fallbackAsset ? asset($fallbackAsset) : '';
     } catch (\Throwable $e) {
         return $fallbackAsset ? asset($fallbackAsset) : '';
     }
