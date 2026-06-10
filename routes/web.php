@@ -67,10 +67,18 @@ Route::get('/download-cv', function () {
     // 3. Fallback to static asset file
     $fallbackPath = public_path('assets/TubagusAlwasiCV.pdf');
     if (file_exists($fallbackPath)) {
-        return response()->download($fallbackPath, $downloadName);
+        $content = file_get_contents($fallbackPath);
+        if ($content && strlen($content) > 0) {
+            return response($content, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+                'Content-Length' => strlen($content),
+            ]);
+        }
     }
 
-    return abort(404, 'File CV tidak ditemukan.');
+    // 4. Ultimate fallback: redirect to static asset URL
+    return redirect(asset('assets/TubagusAlwasiCV.pdf'));
 });
 
 // Temporary debug endpoint — remove after fixing upload
