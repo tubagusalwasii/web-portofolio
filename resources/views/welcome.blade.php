@@ -69,7 +69,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
-    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
   </head>
   <body>
     <div class="bg-glow"></div>
@@ -425,7 +425,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
-    <script src="{{ asset('script.js') }}"></script>
+    <script src="{{ asset('script.js') }}?v={{ time() }}"></script>
     <script>
       // Efek Mengetik dinamis dari database
       const heroTyping = @json($settings->hero_typing ?? ["UI/UX Designer", "Mobile Developer", "Machine Learning Enthusiast"]);
