@@ -419,7 +419,6 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script> 
     <script src="{{ asset('script.js') }}"></script>
     <script>
       // Efek Mengetik dinamis dari database

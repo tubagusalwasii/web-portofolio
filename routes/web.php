@@ -142,3 +142,28 @@ Route::get('/seed-categories', function () {
         'total_in_db' => \Illuminate\Support\Facades\DB::table('categories')->count(),
     ]);
 });
+
+// Rute untuk menangani form kontak
+Route::post('/send-message', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'message' => 'required|string',
+    ]);
+
+    $text = "Halo Tubagus,\n\nAda pesan baru dari pengunjung Portofolio Anda!\n\n"
+          . "Nama  : {$validated['name']}\n"
+          . "Email : {$validated['email']}\n"
+          . "Pesan :\n{$validated['message']}";
+
+    try {
+        \Illuminate\Support\Facades\Mail::raw($text, function ($message) use ($validated) {
+            $message->to('tubagusalwasiii@gmail.com') // Tujuan email ke Anda
+                    ->subject('Pesan Portofolio: ' . $validated['name'])
+                    ->replyTo($validated['email']); // Agar Anda bisa langsung balas (reply)
+        });
+        return response()->json(['success' => true]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});

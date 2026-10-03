@@ -136,7 +136,7 @@ showMoreBtn?.addEventListener('click', () => {
   }
 });
 
-// ===== Logika untuk Formulir Kontak dengan EmailJS =====
+// ===== Logika untuk Formulir Kontak (Backend Laravel) =====
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
     const submitBtn = contactForm.querySelector('button[type="submit"]');
@@ -144,46 +144,52 @@ if (contactForm) {
     contactForm.addEventListener('submit', function(event) {
       event.preventDefault(); // Mencegah form refresh halaman
 
-      // Ganti dengan ID dan Key Anda dari EmailJS
-      const serviceID = 'service_7b3dnls'; // Updated Service ID
-      const templateID = 'template_vpz37de';
-      const publicKey = 'R0_eQUjSrQlI35F3R';
-
-      // Mengubah teks tombol untuk feedback
       if (submitBtn) {
         submitBtn.textContent = 'Mengirim...';
-        submitBtn.disabled = true; // Kunci tombol saat proses
+        submitBtn.disabled = true;
       }
 
-      emailjs.sendForm(serviceID, templateID, this, publicKey)
-        .then(() => {
-          // Jika berhasil
+      // Ambil data dari form
+      const formData = new FormData(this);
+      
+      // Ambil CSRF token dari elemen form
+      const csrfToken = this.querySelector('input[name="_token"]')?.value;
+
+      fetch('/send-message', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken,
+          'Accept': 'application/json'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
           if (submitBtn) {
             submitBtn.textContent = 'Pesan Terkirim!';
             submitBtn.style.backgroundColor = '#10b981'; // Hijau sukses
           }
-          contactForm.reset(); // Mengosongkan form
-          setTimeout(() => {
-            if (submitBtn) {
-              submitBtn.textContent = 'Kirim Pesan';
-              submitBtn.disabled = false;
-              submitBtn.style.backgroundColor = ''; // Kembali ke warna asal
-            }
-          }, 3000);
-        }, (err) => {
-          // Jika gagal
+          contactForm.reset();
+        } else {
+          throw new Error(data.error || 'Terjadi kesalahan');
+        }
+      })
+      .catch((err) => {
+        if (submitBtn) {
+          submitBtn.textContent = 'Gagal Mengirim';
+          submitBtn.style.backgroundColor = '#ef4444'; // Merah error
+        }
+        console.error('Error:', err);
+      })
+      .finally(() => {
+        setTimeout(() => {
           if (submitBtn) {
-            submitBtn.textContent = 'Gagal Mengirim';
-            submitBtn.style.backgroundColor = '#ef4444'; // Merah error
+            submitBtn.textContent = 'Kirim Pesan';
             submitBtn.disabled = false;
+            submitBtn.style.backgroundColor = '';
           }
-          console.error('EmailJS Error:', err);
-          setTimeout(() => {
-            if (submitBtn) {
-              submitBtn.textContent = 'Kirim Pesan';
-              submitBtn.style.backgroundColor = '';
-            }
-          }, 3000);
-        });
+        }, 3000);
+      });
     });
 }
