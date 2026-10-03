@@ -140,6 +140,9 @@ showMoreBtn?.addEventListener('click', () => {
       const y = portfolioSection.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: y, behavior: 'auto' });
     }
+    
+    // Paksa AOS untuk menghitung ulang koordinat elemen setelah DOM berubah drastis
+    setTimeout(() => AOS.refresh(), 100);
   }
 });
 
@@ -171,6 +174,9 @@ showMoreProjectsBtn?.addEventListener('click', () => {
       const y = portfolioSection.getBoundingClientRect().top + window.scrollY - 80; // 80px offset untuk header
       window.scrollTo({ top: y, behavior: 'auto' });
     }
+
+    // Paksa AOS untuk menghitung ulang koordinat setelah tinggi halaman menyusut
+    setTimeout(() => AOS.refresh(), 100);
   }
 });
 
