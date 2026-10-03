@@ -127,20 +127,19 @@ showMoreBtn?.addEventListener('click', () => {
     });
     showMoreBtn.textContent = 'Tampilkan Lebih Sedikit';
   } else {
-    // Scroll kembali ke atas sebelum menyembunyikan agar layar tidak melompat
+    // Sembunyikan item terlebih dahulu
+    hiddenCertItems.forEach(item => {
+      item.classList.remove('visible-item');
+      item.classList.add('hidden-item');
+    });
+    showMoreBtn.textContent = 'Tampilkan Lebih Banyak';
+
+    // Langsung pindahkan scroll ke atas seksi portfolio tanpa animasi
     const portfolioSection = document.getElementById('portfolio');
     if (portfolioSection) {
-      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+      const y = portfolioSection.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: 'auto' });
     }
-
-    setTimeout(() => {
-      // Menyembunyikan item kembali
-      hiddenCertItems.forEach(item => {
-        item.classList.remove('visible-item');
-        item.classList.add('hidden-item'); // Tambahkan kelas untuk menyembunyikan
-      });
-      showMoreBtn.textContent = 'Tampilkan Lebih Banyak';
-    }, 200);
   }
 });
 
@@ -159,19 +158,19 @@ showMoreProjectsBtn?.addEventListener('click', () => {
     showMoreProjectsBtn.textContent = 'Tampilkan Lebih Sedikit';
     setTimeout(() => AOS.refresh(), 100);
   } else {
-    // Scroll kembali ke atas sebelum menyembunyikan
+    // Sembunyikan item terlebih dahulu
+    hiddenProjectItems.forEach(item => {
+      item.classList.remove('visible-project');
+      item.classList.add('hidden-project');
+    });
+    showMoreProjectsBtn.textContent = 'Lihat Semua Proyek';
+
+    // Langsung pindahkan scroll ke atas seksi portfolio tanpa animasi (mencegah bug layar kosong)
     const portfolioSection = document.getElementById('portfolio');
     if (portfolioSection) {
-      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+      const y = portfolioSection.getBoundingClientRect().top + window.scrollY - 80; // 80px offset untuk header
+      window.scrollTo({ top: y, behavior: 'auto' });
     }
-
-    setTimeout(() => {
-      hiddenProjectItems.forEach(item => {
-        item.classList.remove('visible-project');
-        item.classList.add('hidden-project');
-      });
-      showMoreProjectsBtn.textContent = 'Lihat Semua Proyek';
-    }, 200);
   }
 });
 
