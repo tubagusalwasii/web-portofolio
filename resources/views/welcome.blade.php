@@ -237,8 +237,8 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
           <div class="tab-content">
             <div id="tab-projects" class="tab-panel active">
               <div class="grid cards">
-                @foreach($projects as $project)
-                <article class="card" data-aos="fade-up">
+                @foreach($projects as $index => $project)
+                <article class="card {{ $index >= 3 ? 'hidden-project' : '' }}" data-aos="fade-up">
                   <div class="card-media" style="background-image: url('{{ $project->image ? safeStorageUrl($project->image) : '' }}')"></div>
                   <div class="card-body">
                     <h3>{{ $project->name }}</h3>
@@ -258,6 +258,12 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
                 </article>
                 @endforeach
               </div>
+
+              @if($projects->count() > 3)
+              <div class="show-more-container">
+                <button id="show-more-projects-btn" class="button secondary">Lihat Semua Proyek</button>
+              </div>
+              @endif
             </div>
             <div id="tab-certificates" class="tab-panel">
             <div class="certificates-grid">

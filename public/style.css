@@ -837,9 +837,11 @@ a:hover { color: var(--brand-hover); }
   justify-content: flex-end;
 }
 
-/* ===== "Show More" Certificates ===== */
+/* ===== "Show More" Certificates & Projects ===== */
 .certificate-item.hidden-item { display: none; }
 .certificate-item.visible-item { display: block; animation: fadeIn 0.5s ease forwards; }
+.card.hidden-project { display: none; }
+.card.visible-project { display: flex; animation: fadeIn 0.5s ease forwards; }
 .show-more-container { text-align: center; margin-top: 2rem; }
 
 /* ===== Contact Section ===== */
@@ -1307,16 +1309,17 @@ a:hover { color: var(--brand-hover); }
   /* Project cards mobile */
   .grid.cards {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
-  .card { padding: 10px 10px 16px; }
+  .card { padding: 8px 8px 12px; }
   .card:nth-child(even),
   .card:nth-child(odd) { transform: rotate(0deg); } /* Remove rotation on mobile */
-  .card:hover { transform: translateY(-5px) rotate(0deg) scale(1.01); }
-  .card-media { height: 200px; }
-  .card-body { padding: 1rem 0.3rem 0.3rem; }
-  .card-body h3 { font-size: 1.1rem; }
-  .card-body p { font-size: 0.85rem; }
+  .card:hover { transform: translateY(-3px) rotate(0deg) scale(1.01); }
+  .card-media { height: 160px; border-radius: 4px; } /* Dikurangi dari 200px agar tidak terlalu full */
+  .card-body { padding: 0.8rem 0.3rem 0.1rem; }
+  .card-body h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+  .card-body p { font-size: 0.82rem; line-height: 1.4; margin-bottom: 0.8rem; }
+  .card-actions .button.small { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
 
   /* Certificates grid mobile */
   .certificates-grid {
@@ -1415,6 +1418,12 @@ a:hover { color: var(--brand-hover); }
   .tech-item::after { width: 8px; height: 8px; }
   .tech-item img, .tech-item svg { width: 20px; height: 20px; margin-top: -6px; }
   .tech-item span { font-size: 0.5rem; margin-top: 8px; }
+
+  /* Project cards very small screens */
+  .card-media { height: 130px; }
+  .card-body h3 { font-size: 1rem; }
+  .card-body p { font-size: 0.78rem; margin-bottom: 0.5rem; }
+  .tags span { font-size: 0.65rem; padding: 0.2rem 0.4rem; }
 
   .primary-nav ul li a { font-size: 1.3rem; letter-spacing: 1.5px; }
 

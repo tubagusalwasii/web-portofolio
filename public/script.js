@@ -136,6 +136,29 @@ showMoreBtn?.addEventListener('click', () => {
   }
 });
 
+// ===== Logika untuk Tombol "Show More" Proyek =====
+const showMoreProjectsBtn = document.getElementById('show-more-projects-btn');
+const hiddenProjectItems = document.querySelectorAll('.card.hidden-project');
+
+showMoreProjectsBtn?.addEventListener('click', () => {
+  const isShowingMore = showMoreProjectsBtn.textContent === 'Tampilkan Lebih Sedikit';
+
+  if (!isShowingMore) {
+    hiddenProjectItems.forEach(item => {
+      item.classList.remove('hidden-project');
+      item.classList.add('visible-project');
+    });
+    showMoreProjectsBtn.textContent = 'Tampilkan Lebih Sedikit';
+    setTimeout(() => AOS.refresh(), 100);
+  } else {
+    hiddenProjectItems.forEach(item => {
+      item.classList.remove('visible-project');
+      item.classList.add('hidden-project');
+    });
+    showMoreProjectsBtn.textContent = 'Lihat Semua Proyek';
+  }
+});
+
 // ===== Logika untuk Formulir Kontak (Backend Laravel) =====
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
