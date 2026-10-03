@@ -127,12 +127,20 @@ showMoreBtn?.addEventListener('click', () => {
     });
     showMoreBtn.textContent = 'Tampilkan Lebih Sedikit';
   } else {
-    // Menyembunyikan item kembali
-    hiddenCertItems.forEach(item => {
-      item.classList.remove('visible-item');
-      item.classList.add('hidden-item'); // Tambahkan kelas untuk menyembunyikan
-    });
-    showMoreBtn.textContent = 'Tampilkan Lebih Banyak';
+    // Scroll kembali ke atas sebelum menyembunyikan agar layar tidak melompat
+    const portfolioSection = document.getElementById('portfolio');
+    if (portfolioSection) {
+      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    setTimeout(() => {
+      // Menyembunyikan item kembali
+      hiddenCertItems.forEach(item => {
+        item.classList.remove('visible-item');
+        item.classList.add('hidden-item'); // Tambahkan kelas untuk menyembunyikan
+      });
+      showMoreBtn.textContent = 'Tampilkan Lebih Banyak';
+    }, 200);
   }
 });
 
@@ -151,11 +159,19 @@ showMoreProjectsBtn?.addEventListener('click', () => {
     showMoreProjectsBtn.textContent = 'Tampilkan Lebih Sedikit';
     setTimeout(() => AOS.refresh(), 100);
   } else {
-    hiddenProjectItems.forEach(item => {
-      item.classList.remove('visible-project');
-      item.classList.add('hidden-project');
-    });
-    showMoreProjectsBtn.textContent = 'Lihat Semua Proyek';
+    // Scroll kembali ke atas sebelum menyembunyikan
+    const portfolioSection = document.getElementById('portfolio');
+    if (portfolioSection) {
+      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    setTimeout(() => {
+      hiddenProjectItems.forEach(item => {
+        item.classList.remove('visible-project');
+        item.classList.add('hidden-project');
+      });
+      showMoreProjectsBtn.textContent = 'Lihat Semua Proyek';
+    }, 200);
   }
 });
 
