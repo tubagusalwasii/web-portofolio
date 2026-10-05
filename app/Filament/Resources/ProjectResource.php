@@ -38,15 +38,33 @@ class ProjectResource extends Resource
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
-                Forms\Components\FileUpload::make('image')
-                    ->image()
-                    ->disk(config('filesystems.default', 'public'))
-                    ->directory('projek')
-                    ->required()
-                    ->fetchFileInformation(false),
+                Forms\Components\Repeater::make('image')
+                    ->label('Gambar Proyek')
+                    ->schema([
+                        Forms\Components\FileUpload::make('path')
+                            ->label('Gambar')
+                            ->image()
+                            ->disk(config('filesystems.default', 'public'))
+                            ->directory('projek')
+                            ->required()
+                            ->columnSpanFull(),
+                    ])
+                    ->addActionLabel('+ Tambah Gambar')
+                    ->reorderable()
+                    ->collapsible()
+                    ->columnSpanFull()
+                    ->defaultItems(1)
+                    ->dehydrateStateUsing(fn ($state) => array_values(
+                        array_filter(array_column($state ?? [], 'path'))
+                    )),
                 Forms\Components\TextInput::make('url_link')
                     ->url()
                     ->maxLength(255),
+                Forms\Components\TagsInput::make('tech_stack')
+                    ->label('Tech Stack / Skills')
+                    ->placeholder('Tambah skill (contoh: Laravel, Kotlin, Python)')
+                    ->columnSpanFull()
+                    ->helperText('Ketik nama skill lalu tekan Enter untuk menambahkan'),
             ]);
     }
 
@@ -59,7 +77,11 @@ class ProjectResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image')
-                    ->disk(config('filesystems.default', 'public')),
+                    ->label('Gambar')
+                    ->state(fn ($record) => $record->images)
+                    ->disk(config('filesystems.default', 'public'))
+                    ->stacked()
+                    ->circular(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -18,9 +18,19 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
         }
         return $path;
     }
-    
+    // Prioritaskan disk lokal (public) jika file benar-benar ada di lokal (berguna untuk testing lokal)
+    try {
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        if ($disk->exists($path)) {
+            return $disk->url($path);
+        }
+    } catch (\Throwable $e) {
+        // Abaikan error disk lokal
+    }
+
+    // Jika tidak ada di lokal, dan Cloudinary dikonfigurasi, gunakan Cloudinary
     $cloudName = config('filesystems.disks.cloudinary.cloud');
-    if ($cloudName) {
+    if ($cloudName && config('filesystems.default') === 'cloudinary') {
         $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
         $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
         $videoExts = ['mp4', 'webm', 'mov', 'avi'];
@@ -30,7 +40,6 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
         } elseif (in_array($ext, $videoExts)) {
             $type = 'video';
         } else {
-            // Use 'raw' for non-media files like PDFs
             $type = 'raw';
         }
 
@@ -41,17 +50,8 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
         return "https://res.cloudinary.com/{$cloudName}/{$type}/upload/{$transform}{$path}";
     }
     
-    // Local disk: verify the file actually exists before returning URL
-    try {
-        $disk = \Illuminate\Support\Facades\Storage::disk(config('filesystems.default', 'public'));
-        if ($disk->exists($path)) {
-            return $disk->url($path);
-        }
-        // File doesn't exist in storage, use fallback
-        return $fallbackAsset ? asset($fallbackAsset) : '';
-    } catch (\Throwable $e) {
-        return $fallbackAsset ? asset($fallbackAsset) : '';
-    }
+    // Jika masih gagal, kembalikan fallback
+    return $fallbackAsset ? asset($fallbackAsset) : '';
 }
 @endphp
 <!doctype html>
@@ -67,7 +67,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
   </head>
@@ -97,7 +97,14 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
 
     <main>
       <section id="hero" class="section hero">
-        <div class="container hero-grid">
+        <!-- Seluruh hero adalah permukaan meja kayu -->
+        <div class="hero-desk-scene"
+             style="background-image: linear-gradient(rgba(20,10,4,0.55), rgba(20,10,4,0.55)), url('{{ asset('assets/wood_desk.png') }}');"
+        >
+          <!-- Ambient overhead warm light -->
+          <div class="hero-overhead-light" aria-hidden="true"></div>
+
+          <div class="container hero-grid">
           <div class="hero-text" data-aos="fade-right">
             <p class="eyebrow">Hello, I'm</p>
             <h1>{{ $settings->hero_title ?? "Tubagus Alwasi'i" }}</h1>
@@ -112,10 +119,123 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
               <a class="button secondary" href="#portfolio">Lihat Portfolio</a>
             </div>
           </div>
-          <div class="hero-media" data-aos="fade-left" data-aos-delay="200">
-            <img src="{{ $settings->hero_image ? safeStorageUrl($settings->hero_image, 'assets/profil2.jpeg') : asset('assets/profil2.jpeg') }}" alt="Foto profil {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}" />
-          </div>
-        </div>
+          <!-- ====== Turntable Hero Media ====== -->
+          <div class="turntable-deck" data-aos="fade-left" data-aos-delay="200" id="turntable-deck">
+            
+            <!-- Karpet/Mat gelap bawah deck -->
+            <div class="desk-mat" aria-hidden="true"></div>
+            <!-- Cahaya dari atas (lamp glow dari atas deck, menerangi cassette) -->
+            <div class="deck-top-light" aria-hidden="true"></div>
+
+            <!-- Kaset Pita (Cassette) Dekorasi Atas -->
+            <div class="cassette-deco" id="cassette-deco" aria-hidden="true">
+              <div class="cassette-body">
+                <div class="cassette-window">
+                  <div class="cassette-reel left" id="reel-left"></div>
+                  <div class="cassette-tape-bridge"></div>
+                  <div class="cassette-reel right" id="reel-right"></div>
+                </div>
+                <div class="cassette-label">
+                  <span class="cassette-title">PORTFOLIO MIX</span>
+                  <span class="cassette-side">SIDE A ▶</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Deck / Platter Area -->
+            <div class="turntable-platter-area">
+
+              <!-- Piringan Hitam (Vinyl Record) — berputar, foto sudah dipisah -->
+              <button
+                class="vinyl-record"
+                id="vinyl-play-btn"
+                aria-label="Putar / Jeda musik"
+                title="Klik untuk memutar musik"
+              >
+                <!-- Groove rings + Label area vinyl (SVG) -->
+                <svg class="vinyl-grooves" viewBox="0 0 300 300" aria-hidden="true">
+                  <defs>
+                    <!-- Gradient warna label vinyl -->
+                    <radialGradient id="labelGrad" cx="38%" cy="32%" r="65%">
+                      <stop offset="0%"   stop-color="#d49060"/>
+                      <stop offset="45%"  stop-color="#8b4f2a"/>
+                      <stop offset="100%" stop-color="#5c2e12"/>
+                    </radialGradient>
+                    <!-- Shine reflection di label -->
+                    <radialGradient id="shineGrad" cx="30%" cy="22%" r="55%">
+                      <stop offset="0%"   stop-color="rgba(255,255,255,0.22)"/>
+                      <stop offset="70%"  stop-color="rgba(255,255,255,0.04)"/>
+                      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- Outer groove bands (lebih banyak = lebih realistis) -->
+                  <circle cx="150" cy="150" r="140" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.2"/>
+                  <circle cx="150" cy="150" r="133" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                  <circle cx="150" cy="150" r="126" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.9"/>
+                  <circle cx="150" cy="150" r="119" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+                  <circle cx="150" cy="150" r="112" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+                  <circle cx="150" cy="150" r="105" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+                  <circle cx="150" cy="150" r="98"  fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+                  <!-- Area label (warm amber/brown) -->
+                  <circle cx="150" cy="150" r="90" fill="url(#labelGrad)"/>
+                  <!-- Border luar label -->
+                  <circle cx="150" cy="150" r="90" fill="none" stroke="rgba(0,0,0,0.55)" stroke-width="2.5"/>
+                  <!-- Rim detail dalam label -->
+                  <circle cx="150" cy="150" r="87" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.7"/>
+                  <circle cx="150" cy="150" r="84" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+                  <!-- Shine overlay di label -->
+                  <circle cx="150" cy="150" r="90" fill="url(#shineGrad)"/>
+                </svg>
+                <!-- Icon play/pause overlay -->
+                <div class="vinyl-play-icon" id="vinyl-play-icon" aria-hidden="true">
+                  <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                  <svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+                    <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                  </svg>
+                </div>
+              </button>
+
+              <!-- ========================================
+                   FOTO PROFIL — STATIC, tidak ikut berputar
+                   ======================================== -->
+              <div class="vinyl-photo-frame" id="vinyl-photo-frame">
+                <!-- Ambient glow (intensif saat playing) -->
+                <div class="vpf-glow" id="vpf-glow"></div>
+                <!-- Outer metallic ring -->
+                <div class="vpf-outer-ring"></div>
+                <!-- Foto profil -->
+                <img
+                  src="{{ $settings->hero_image ? safeStorageUrl($settings->hero_image, 'assets/profil2.jpeg') : asset('assets/profil2.jpeg') }}"
+                  alt="Foto profil {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}"
+                  class="vinyl-photo"
+                />
+                <!-- Glass shine overlay (efek 3D kaca) -->
+                <div class="vpf-shine"></div>
+              </div>
+
+              <!-- Tonearm (Lengan Pemutar) -->
+              <div class="tonearm-container" id="tonearm-container" aria-hidden="true">
+                <div class="tonearm-pivot"></div>
+                <div class="tonearm-arm" id="tonearm">
+                  <div class="tonearm-headshell"></div>
+                  <div class="tonearm-cartridge"></div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Status bar bawah -->
+            <div class="turntable-status">
+              <span class="status-dot" id="status-dot"></span>
+              <span class="status-label" id="status-label">STOPPED — Klik vinyl untuk play</span>
+              <span class="status-rpm">33 <small>RPM</small></span>
+            </div>
+
+          </div><!-- /.turntable-deck -->
+          </div><!-- /.hero-grid -->
+        </div><!-- /.hero-desk-scene -->
       </section>
 
       <section id="about" class="section">
@@ -229,30 +349,50 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10.5l-4-4-4 4"></path><path d="M20 18.5l-4-4-4 4"></path><path d="M8 6.5l4 4 4-4"></path><path d="M12 14.5l4 4 4-4"></path></svg>
             Certificates
           </button>
-          <button class="tab-button" data-tab="tech-stack">
+          <button class="tab-button" data-tab="skills">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m4.93 19.07 1.41-1.41"></path><path d="m17.66 6.34 1.41-1.41"></path><circle cx="12" cy="12" r="4"></circle><path d="M12 12a2.95 2.95 0 0 1-2.95-2.95c0-1.63 1.32-2.95 2.95-2.95s2.95 1.32 2.95 2.95A2.95 2.95 0 0 1 12 12z"></path></svg>
-            Tech Stack
+            Skills
           </button>
         </div>
           <div class="tab-content">
             <div id="tab-projects" class="tab-panel active">
               <div class="grid cards">
                 @foreach($projects as $index => $project)
-                <article class="card {{ $index >= 3 ? 'hidden-project' : '' }}" data-aos="fade-up">
-                  <div class="card-media" style="background-image: url('{{ $project->image ? safeStorageUrl($project->image) : '' }}')"></div>
+                <article class="card {{ $index >= 3 ? 'hidden-project' : '' }}" data-aos="fade-up" style="cursor: pointer;" onclick="openProjectPopup({{ $project->id }})">
+                  <div class="card-media swiper card-swiper-{{ $project->id }}">
+                    <div class="swiper-wrapper">
+                      @php
+                        $images = $project->images;
+                        if (empty($images)) $images = [''];
+                      @endphp
+                      @foreach($images as $img)
+                        <div class="swiper-slide">
+                          <div style="background-image: url('{{ $img ? safeStorageUrl($img) : '' }}'); background-size: cover; background-position: center; width: 100%; height: 100%;"></div>
+                        </div>
+                      @endforeach
+                    </div>
+                    @if(count($images) > 1)
+                      <div class="swiper-pagination"></div>
+                    @endif
+                  </div>
                   <div class="card-body">
                     <h3>{{ $project->name }}</h3>
-                    <p>{{ $project->description }}</p>
+                    @if(strlen($project->description) > 100)
+                      <p>
+                        {{ Str::limit($project->description, 100, '') }}...
+                        <span style="color: var(--brand); font-weight: 500; cursor: pointer; text-decoration: underline; margin-left: 2px;" onclick="event.stopPropagation(); openProjectPopup({{ $project->id }});">Lihat Selengkapnya</span>
+                      </p>
+                    @else
+                      <p>{{ $project->description }}</p>
+                    @endif
                     <div class="tags">
                       <span>{{ $project->category->name }}</span>
                     </div>
                     <div class="card-actions">
-                      @if($project->url_link)
-                      <a href="{{ $project->url_link }}" target="_blank" class="button dark-ghost small">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        Lihat Proyek
-                      </a> 
-                      @endif
+                      <button class="button dark-ghost small" onclick="event.stopPropagation(); openProjectPopup({{ $project->id }});">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="M21 3l-7 7"></path><path d="M3 21l7-7"></path></svg>
+                        Lihat Detail
+                      </button> 
                     </div>
                   </div>
                 </article>
@@ -285,48 +425,36 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
             </div>
             @endif
           </div>
-            <div id="tab-tech-stack" class="tab-panel">
-            <div class="tech-stack-grid">
-              <div class="tech-item" data-aos="zoom-in-up">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#e65100" d="M41,5h-34l3,34l14,4l14-4l3-34z"/><path fill="#ff6d00" d="M24,8v31.9l11.2-3.2l2.5-28.7z"/><path fill="#ffffff" d="M24,25v-4h8.6l-0.7,11.5l-7.9,2.6v-4.2l4.1-1.4l0.3-4.5zM32.9,17l0.3-4h-9.2v4z"/><path fill="#eeeeee" d="M24,30.9v4.2l-7.9-2.6l-0.4-5.5h4l0.2,2.5zM19.1,17h4.9v-4h-9.1l0.7,12h8.4v-4h-4.6z"/></svg>
-                <span>HTML5</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="50">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#0277BD" d="M41,5H7l3,34l14,4l14-4L41,5z"/><path fill="#039BE5" d="M24 8L24 39.9 35.2 36.7 37.7 8z"/><path fill="#FFF" d="M33.1 13L24 13 24 17 28.9 17 28.6 21 24 21 24 25 28.4 25 28.1 29.5 24 30.9 24 35.1 31.9 32.5 32.6 21 32.6 21z"/><path fill="#EEE" d="M24,13v4h-8.9l-0.3-4H24z M19.4,21l0.2,4H24v-4H19.4z M19.8,27h-4l0.3,5.5l7.9,2.6v-4.2l-4.1-1.4L19.8,27z"/></svg>
-                <span>CSS3</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="100">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#FFD600" d="M6 6h36v36H6z"/><path d="M29.5 32c.5 1.7 1.5 3.1 3.2 4.1 1.7 1 3.5 1.4 5.3 1.4 1.8 0 3.6-.4 5.3-1.4 1.7-1 2.7-2.4 3.2-4.1l-4.2-.7c-.3 1.1-.9 1.9-1.8 2.5-.9.6-2 .9-3 .9s-2.1-.3-3-.9c-.9-.6-1.5-1.4-1.8-2.5l-4.2.7z"/><path d="M44.5 32.5l.8 2c.3.7.8 1.2 1.4 1.4.6.2 1.3.2 2-.1.7-.3 1.2-.8 1.4-1.4l.7-2h-6.3z"/></svg>
-                <span>JavaScript</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="150">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#777BB4" d="M30 4H18c-1.1 0-2 .9-2 2v36c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><path fill="#FFFFFF" d="M24 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                <span>PHP</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#FF2D20" d="M38.5 4L24 12.5 9.5 4 4 7.2v24.6l5.5 3.2 14.5-8.5 14.5 8.5 5.5-3.2V7.2L38.5 4z"/></svg>
-                <span>Laravel</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="250">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#0095D5" d="M24 4L4 24l20 20 20-20L24 4zm0 8c2.2 0 4 1.8 4 4s-1.8 4-4 4-4-1.8-4-4 1.8-4 4-4zm0 24c-6.6 0-12-5.4-12-12s5.4-12 12-12 12 5.4 12 12-5.4 12-12 12z"/></svg>
-                <span>Kotlin</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#3776AB" d="M24 4c-5.5 0-10 4.5-10 10v4h10v2h-14v-6c0-5.5 4.5-10 10-10s10 4.5 10 10v2h-2v-2c0-4.4-3.6-8-8-8z"/><path fill="#FFD43B" d="M24 44c5.5 0 10-4.5 10-10v-4H24v-2h14v6c0 5.5-4.5 10-10 10s-10-4.5-10-10v-2h2v2c0 4.4 3.6 8 8 8z"/></svg>
-                <span>Python</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="350">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#F05032" d="M44.5 22L26 3.5c-.8-.8-2.1-.8-2.9 0L19 7.6l5.4 5.4c.6-.2 1.3-.2 1.9.1.6.3 1 1 1.1 1.7.1.7-.1 1.4-.6 1.9l5.4 5.4c.5-.1 1.1-.1 1.6.1.9.3 1.5 1.2 1.5 2.1s-.6 1.8-1.5 2.1c-.9.3-1.8.1-2.4-.5l-5.4-5.4c.1-.5.1-1.1-.1-1.6-.3-.9-1.2-1.5-2.1-1.5s-1.8.6-2.1 1.5c-.3.9-.1 1.8.5 2.4l5.4 5.4c-.1.5-.1 1.1.1 1.6.3.9 1.2 1.5 2.1 1.5s1.8-.6 2.1-1.5c.3-.9.1-1.8-.5-2.4l-5.4-5.4c.1-.5.1-1.1-.1-1.6-.3-.9-1.2-1.5-2.1-1.5s-1.8.6-2.1 1.5c-.3.9-.1 1.8.5 2.4l5.4 5.4c-.1.5-.1 1.1.1 1.6.3.9 1.2 1.5 2.1 1.5s1.8-.6 2.1-1.5c.3-.9.1-1.8-.5-2.4l-5.4-5.4c.1-.5.1-1.1-.1-1.6-.3-.9-1.2-1.5-2.1-1.5s-1.8.6-2.1 1.5c-.3.9-.1 1.8.5 2.4l5.4 5.4z"/></svg>
-                <span>Git</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#F24E1E" d="M14 10a4 4 0 1 1 8 0 4 4 0 0 1-8 0zm0 10a4 4 0 1 1 8 0 4 4 0 0 1-8 0zm0 10a4 4 0 1 1 8 0 4 4 0 0 1-8 0z"/><path fill="#FF7262" d="M26 10a4 4 0 1 1 8 0 4 4 0 0 1-8 0z"/><path fill="#1ABCFE" d="M26 20a4 4 0 1 1 8 0 4 4 0 0 1-8 0z"/><path fill="#0ACF83" d="M26 30a4 4 0 1 1 8 0 4 4 0 0 1-8 0zm0-10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4 4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4z"/><path fill="#A259FF" d="M18 20a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4 4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4z"/></svg>
-                <span>Figma</span>
-              </div>
-              <div class="tech-item" data-aos="zoom-in-up" data-aos-delay="450">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><path fill="#00758F" d="M24 4C12.95 4 4 8.93 4 15v18c0 6.07 8.95 11 20 11s20-4.93 20-11V15c0-6.07-8.95-11-20-11zm0 4c8.84 0 16 3.58 16 8s-7.16 8-16 8-16-3.58-16-8 7.16-8 16-8z"/></svg>
-                <span>MySQL</span>
-              </div>
+          <div id="tab-skills" class="tab-panel">
+            <div class="skills-knob-grid">
+              @forelse($skills as $index => $skill)
+                @php
+                  // Rotasi berdasarkan level: Dasar (-45deg), Menengah (45deg), Ahli (135deg)
+                  $rotation = -45; // Dasar
+                  if ($skill->level == 'Menengah') $rotation = 45;
+                  if ($skill->level == 'Ahli') $rotation = 135;
+                @endphp
+                <div class="skill-knob-wrapper" data-aos="zoom-in-up" data-aos-delay="{{ ($index % 5) * 50 }}">
+                  <div class="vintage-knob level-{{ strtolower($skill->level) }}">
+                    <div class="knob-dial" style="transform: rotate({{ $rotation }}deg);">
+                      <div class="knob-indicator"></div>
+                    </div>
+                    <div class="knob-center">
+                      @if($skill->icon_url)
+                        <img src="{{ safeStorageUrl($skill->icon_url) }}" alt="{{ $skill->name }}">
+                      @else
+                        <span>{{ substr($skill->name, 0, 2) }}</span>
+                      @endif
+                    </div>
+                  </div>
+                  <div class="skill-info">
+                    <span class="skill-name">{{ $skill->name }}</span>
+                    <span class="skill-level">{{ $skill->level }}</span>
+                  </div>
+                </div>
+              @empty
+                <p style="text-align: center; opacity: 0.7; grid-column: 1 / -1; width: 100%;">Belum ada skill yang ditambahkan.</p>
+              @endforelse
             </div>
           </div>
           </div>
@@ -418,15 +546,186 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
       </div>
     </footer>
 
-    <div id="lightbox" class="lightbox">
-      <span class="close">&times;</span>
-      <img class="lightbox-content" id="lightbox-img" alt="Tampilan diperbesar">
+    <!-- Project Modal - LinkedIn Style -->
+    <div id="project-modal" class="lightbox" style="z-index: 9999;">
+      <div class="pm-backdrop" id="close-project-modal-backdrop"></div>
+      <div class="pm-dialog">
+        <!-- Header dengan gradient -->
+        <div class="pm-header">
+          <div id="pm-slider" class="swiper pm-swiper">
+            <div class="swiper-wrapper" id="pm-wrapper"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+          </div>
+          <button class="pm-close" id="close-project-modal" aria-label="Tutup">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div class="pm-body">
+          <!-- Judul + Kategori -->
+          <div class="pm-meta">
+            <h2 id="pm-title" class="pm-title"></h2>
+            <div class="pm-category-row">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              <span id="pm-category" class="pm-cat-label"></span>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <hr class="pm-divider">
+
+          <!-- Deskripsi -->
+          <div class="pm-section">
+            <h4 class="pm-section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Deskripsi
+            </h4>
+            <p id="pm-desc" class="pm-desc"></p>
+          </div>
+
+          <!-- Tech Stack -->
+          <div id="pm-skills-section" class="pm-section" style="display:none;">
+            <h4 class="pm-section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Skills & Tech Stack
+            </h4>
+            <div id="pm-skills" class="pm-skills-list"></div>
+          </div>
+
+          <!-- Link Proyek -->
+          <div id="pm-link-container" class="pm-link-row">
+            <a id="pm-link" href="#" target="_blank" class="button primary pm-visit-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Kunjungi Proyek
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Audio player tersembunyi -->
+    <audio id="bg-audio" loop preload="none">
+      <source src="{{ asset('assets/Get You (feat. Kali Uchis).mp3') }}" type="audio/mpeg">
+    </audio>
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{{ asset('script.js') }}?v={{ time() }}"></script>
     <script>
+      // Data projects for modal
+      const projectsData = [
+        @foreach($projects as $p)
+        {
+          id: {{ $p->id }},
+          name: {!! json_encode($p->name) !!},
+          category: {!! json_encode($p->category->name) !!},
+          description: {!! json_encode($p->description) !!},
+          url_link: {!! json_encode($p->url_link) !!},
+          tech_stack: {!! json_encode($p->tech_stack) !!},
+          images: [
+            @foreach($p->images as $img)
+              {!! json_encode($img ? safeStorageUrl($img) : '') !!},
+            @endforeach
+          ]
+        },
+        @endforeach
+      ];
+
+      let modalSwiper = null;
+
+      function openProjectPopup(id) {
+        const project = projectsData.find(p => p.id === id);
+        if (!project) return;
+        
+        document.getElementById('pm-title').innerText = project.name;
+        document.getElementById('pm-category').innerText = project.category;
+        
+        // Description
+        document.getElementById('pm-desc').innerHTML = project.description
+          ? project.description.replace(/\n/g, '<br>')
+          : '<em style="opacity:0.5;">Tidak ada deskripsi.</em>';
+        
+        // Tech stack skills
+        const skillsSection = document.getElementById('pm-skills-section');
+        const skillsList = document.getElementById('pm-skills');
+        if (project.tech_stack && project.tech_stack.length > 0) {
+          skillsList.innerHTML = project.tech_stack
+            .map(skill => `<span class="pm-skill-badge">${skill}</span>`)
+            .join('');
+          skillsSection.style.display = 'block';
+        } else {
+          skillsSection.style.display = 'none';
+        }
+
+        // Link
+        const linkBtn = document.getElementById('pm-link');
+        const linkContainer = document.getElementById('pm-link-container');
+        if (project.url_link) {
+          linkBtn.href = project.url_link;
+          linkContainer.style.display = 'flex';
+        } else {
+          linkContainer.style.display = 'none';
+        }
+
+        // Images for slider
+        const wrapper = document.getElementById('pm-wrapper');
+        wrapper.innerHTML = '';
+        const validImages = project.images.filter(img => img);
+        if (validImages.length === 0) {
+          // show placeholder if no images
+          wrapper.innerHTML = `<div class="swiper-slide"><div class="pm-no-img"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p style="opacity:0.4;margin-top:0.5rem;font-size:0.85rem;">Tidak ada gambar</p></div></div>`;
+        } else {
+          validImages.forEach(img => {
+            wrapper.innerHTML += `<div class="swiper-slide"><div class="pm-img-slide" style="background-image: url('${img}');"></div></div>`;
+          });
+        }
+
+        document.getElementById('project-modal').style.display = 'flex';
+        document.body.classList.add('no-scroll');
+
+        // Init modal swiper
+        if (modalSwiper) { try { modalSwiper.destroy(true, true); } catch(e){} modalSwiper = null; }
+        modalSwiper = new Swiper('#pm-slider', {
+          loop: validImages.length > 1,
+          navigation: { nextEl: '#pm-slider .swiper-button-next', prevEl: '#pm-slider .swiper-button-prev' },
+          pagination: { el: '#pm-slider .swiper-pagination', clickable: true },
+        });
+      }
+
+      document.getElementById('close-project-modal').addEventListener('click', () => {
+        document.getElementById('project-modal').style.display = 'none';
+        document.body.classList.remove('no-scroll');
+      });
+      document.getElementById('close-project-modal-backdrop').addEventListener('click', () => {
+        document.getElementById('project-modal').style.display = 'none';
+        document.body.classList.remove('no-scroll');
+      });
+
+      // Init card swipers
+      document.addEventListener('DOMContentLoaded', () => {
+        const swipers = document.querySelectorAll('.card-media.swiper');
+        swipers.forEach(el => {
+          new Swiper(el, {
+            loop: true,
+            autoplay: {
+              delay: 3000,
+              disableOnInteraction: false,
+            },
+            pagination: {
+              el: el.querySelector('.swiper-pagination'),
+              clickable: true,
+            },
+            on: {
+              click: function(swiper, event) {
+                // Biarkan onclick container yang bekerja
+              }
+            }
+          });
+        });
+      });
+
       // Efek Mengetik dinamis dari database
       const heroTyping = @json($settings->hero_typing ?? ["UI/UX Designer", "Mobile Developer", "Machine Learning Enthusiast"]);
       new Typed('#typing-effect', {

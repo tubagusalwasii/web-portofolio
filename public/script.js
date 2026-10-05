@@ -237,3 +237,137 @@ if (contactForm) {
       });
     });
 }
+
+
+// ================================================================
+// ===== TURNTABLE AUDIO PLAYER — Hero Interactive Vinyl Deck =====
+// ================================================================
+(function () {
+  'use strict';
+
+  // --- State ---
+  let isPlaying = false;
+
+  // --- DOM References ---
+  const audio        = document.getElementById('bg-audio');
+  const vinylBtn     = document.getElementById('vinyl-play-btn');
+  const tonearm      = document.getElementById('tonearm');
+  const reelLeft     = document.getElementById('reel-left');
+  const reelRight    = document.getElementById('reel-right');
+  const statusDot    = document.getElementById('status-dot');
+  const statusLabel  = document.getElementById('status-label');
+  const iconPlay     = document.getElementById('icon-play');
+  const iconPause    = document.getElementById('icon-pause');
+
+  // Guard: kalau elemen tidak ada (halaman lain), hentikan
+  if (!audio || !vinylBtn) return;
+
+  /**
+   * Update semua elemen visual berdasarkan state isPlaying.
+   */
+  function updateUI() {
+    if (isPlaying) {
+      // --- Vinyl: tambahkan kelas 'playing' untuk rotasi ---
+      vinylBtn.classList.add('playing');
+
+      // --- Tonearm: geser ke atas vinyl ---
+      tonearm.classList.add('on-vinyl');
+
+      // --- Cassette Reels: putar ---
+      reelLeft.classList.add('spinning');
+      reelRight.classList.add('spinning');
+
+      // --- Ambient Glow: nyala ---
+      const glow = document.getElementById('vpf-glow');
+      if (glow) glow.classList.add('active');
+
+      // --- Status Bar ---
+      statusDot.classList.add('active');
+      statusLabel.textContent = 'NOW PLAYING ♪ Get You — Daniel Caesar';
+
+      // --- Icon: tampilkan pause ---
+      iconPlay.style.display  = 'none';
+      iconPause.style.display = 'block';
+    } else {
+      // --- Vinyl: hentikan rotasi ---
+      vinylBtn.classList.remove('playing');
+
+      // --- Tonearm: kembalikan ke posisi rest ---
+      tonearm.classList.remove('on-vinyl');
+
+      // --- Cassette Reels: berhenti ---
+      reelLeft.classList.remove('spinning');
+      reelRight.classList.remove('spinning');
+
+      // --- Ambient Glow: mati ---
+      const glow = document.getElementById('vpf-glow');
+      if (glow) glow.classList.remove('active');
+
+      // --- Status Bar ---
+      statusDot.classList.remove('active');
+      statusLabel.textContent = 'STOPPED — Klik vinyl untuk play';
+
+      // --- Icon: tampilkan play ---
+      iconPlay.style.display  = 'block';
+      iconPause.style.display = 'none';
+    }
+  }
+
+  /**
+   * Toggle play / pause audio & semua animasi.
+   */
+  function togglePlay() {
+    if (!isPlaying) {
+      // Coba play audio; tangani autoplay policy browser
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            isPlaying = true;
+            updateUI();
+          })
+          .catch((err) => {
+            // Autoplay diblokir browser — tampilkan pesan di status bar
+            console.warn('Autoplay diblokir:', err);
+            statusLabel.textContent = 'Interaksi diperlukan — coba lagi';
+          });
+      } else {
+        isPlaying = true;
+        updateUI();
+      }
+    } else {
+      audio.pause();
+      isPlaying = false;
+      updateUI();
+    }
+  }
+
+  // --- Event: Klik pada vinyl record ---
+  vinylBtn.addEventListener('click', togglePlay);
+
+  // --- Event: Keyboard accessibility (Space / Enter) ---
+  vinylBtn.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      togglePlay();
+    }
+  });
+
+  // --- Event: Sinkronisasi saat audio berakhir / error ---
+  audio.addEventListener('pause', () => {
+    // Dipanggil juga saat audio selesai (loop=false)
+    if (!audio.loop && audio.ended) {
+      isPlaying = false;
+      updateUI();
+    }
+  });
+  audio.addEventListener('error', () => {
+    isPlaying = false;
+    updateUI();
+    statusLabel.textContent = 'File audio tidak ditemukan';
+  });
+
+  // --- Inisialisasi awal ---
+  updateUI();
+
+})();

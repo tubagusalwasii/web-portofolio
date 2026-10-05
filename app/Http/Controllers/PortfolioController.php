@@ -15,10 +15,11 @@ class PortfolioController extends Controller
         $projects = Project::with('category')->get();
         $certificates = DB::table('certificates')->orderBy('sort_order')->get();
         $experiences = Experience::orderBy('order')->get();
+        $skills = \App\Models\Skill::orderBy('sort_order')->get();
         
         // Load settings from the single record
         $settings = \App\Models\SiteSetting::first() ?? (object)[];
 
-        return view('welcome', compact('projects', 'certificates', 'settings', 'experiences'));
+        return view('welcome', compact('projects', 'certificates', 'settings', 'experiences', 'skills'));
     }
 }

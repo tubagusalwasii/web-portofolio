@@ -64,16 +64,18 @@ body::after {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: 
-    radial-gradient(circle at 15% 25%, rgba(212, 145, 92, 0.1) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(180, 100, 50, 0.08) 0%, transparent 45%);
+    radial-gradient(ellipse 70% 50% at 10% 20%, rgba(212, 145, 92, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 90% 80%, rgba(180, 100, 45, 0.13) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(140, 70, 20, 0.1) 0%, transparent 70%);
   z-index: -2;
-  animation: bgGlowPulse 15s infinite alternate ease-in-out;
+  animation: bgGlowPulse 8s infinite alternate ease-in-out;
   pointer-events: none;
 }
 
 @keyframes bgGlowPulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(1.1); opacity: 1; }
+  0%   { opacity: 0.5; transform: scale(1); }
+  50%  { opacity: 0.9; }
+  100% { opacity: 0.65; transform: scale(1.04); }
 }
 
 /* ===== Links & Buttons ===== */
@@ -169,33 +171,286 @@ a:hover { color: var(--brand-hover); }
 
 /* ===== Header & Navigation ===== */
 .site-header {
-  background: rgba(22, 18, 14, 0.92);
-  backdrop-filter: blur(10px);
+  background: rgba(16, 12, 9, 0.55);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(58, 48, 40, 0.3);
+  border-bottom: 1px solid rgba(212, 145, 92, 0.08);
+  box-shadow: 0 1px 30px rgba(0, 0, 0, 0.3);
 }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
-.brand { font-weight: 700; font-size: 1.3rem; color: var(--brand); }
-.primary-nav ul { display: flex; list-style: none; gap: 1.5rem; }
-.primary-nav a { position: relative; color: var(--text); font-weight: 500; transition: color 0.3s ease; }
+.brand { font-weight: 700; font-size: 1.3rem; color: var(--brand); letter-spacing: -0.3px; }
+.primary-nav ul { display: flex; list-style: none; gap: 2rem; }
+.primary-nav a { position: relative; color: rgba(237, 228, 214, 0.8); font-weight: 500; font-size: 0.92rem; transition: color 0.25s ease; }
+.primary-nav a:hover { color: var(--text); }
 .primary-nav a.active { color: var(--brand); font-weight: 600; }
-.primary-nav a::after { content: ''; position: absolute; width: 100%; height: 2px; background: var(--brand); bottom: -5px; left: 0; transform: scaleX(0); transform-origin: center; transition: transform 0.4s ease; }
+.primary-nav a::after { content: ''; position: absolute; width: 100%; height: 1.5px; background: var(--brand); bottom: -5px; left: 0; transform: scaleX(0); transform-origin: center; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px; }
+.primary-nav a:hover::after { transform: scaleX(0.6); opacity: 0.5; }
 .primary-nav a.active::after { transform: scaleX(1); }
 .nav-toggle { display: none; }
 
-/* ===== Hero Section ===== */
-.hero { padding: 5rem 0; display: flex; align-items: center; min-height: 100vh; }
-.hero-grid { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; align-items: center; }
+/* ===== Hero Section — Desk Scene ===== */
+.hero {
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Seluruh hero menjadi permukaan meja kayu */
+.hero-desk-scene {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-color: #1e1006;
+  overflow: hidden;
+}
+
+/* Vignette di tepi dan fade ke bawah — menyambung mulus ke section berikutnya */
+.hero-desk-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    /* Fade ke bawah: dari transparan ke warna bg situs */
+    linear-gradient(to bottom,
+      transparent 0%,
+      transparent 55%,
+      rgba(22, 18, 14, 0.6) 75%,
+      rgba(22, 18, 14, 0.92) 90%,
+      #16120e 100%
+    ),
+    /* Vignette tepi kiri-kanan */
+    radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(5, 3, 1, 0.55) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cahaya ambient hangat dari overhead (lampu di atas) */
+.hero-overhead-light {
+  position: absolute;
+  top: -30%;
+  right: 30%;
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, rgba(255, 145, 40, 0.18) 0%, rgba(200, 110, 30, 0.06) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
 .hero-text h1 { font-size: 3rem; }
 .subtitle { margin: 1rem 0 2rem; font-size: 1.2rem; min-height: 50px; }
-.hero-media { width: 350px; height: 350px; border-radius: 50%; position: relative; margin: 0 auto; overflow: hidden; box-shadow: 0 0 30px rgba(212, 145, 92, 0.4), 0 0 80px rgba(212, 145, 92, 0.1); transition: box-shadow 0.4s ease; }
-.hero-media img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: transform 0.3s ease; }
-.hero-media::before { content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: rgba(255, 235, 200, 0.2); transform: translateX(-100%) skewX(-30deg); transition: transform 0.8s ease; z-index: 1; }
-.hero-media:hover { box-shadow: 0 0 50px rgba(212, 145, 92, 0.6), 0 0 100px rgba(212, 145, 92, 0.15); }
-.hero-media:hover img { transform: scale(1.03); }
-.hero-media:hover::before { transform: translateX(200%) skewX(-30deg); }
+
+/* =============================================
+   DEKORASI MEJA — Cassette Tapes, Pensil, Buku
+   ============================================= */
+
+/* Base style untuk semua dekorasi meja */
+.desk-cassette, .desk-pencil-cup, .desk-books, .desk-lamp-corner {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* === Kaset berserakan === */
+.dtape-body {
+  width: 110px;
+  height: 68px;
+  background: linear-gradient(160deg, #4a3828 0%, #2e1f14 60%, #3d2810 100%);
+  border-radius: 5px;
+  border: 1px solid rgba(0,0,0,0.6);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.06);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dtape-window {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.55);
+  border-radius: 3px;
+  padding: 4px 6px;
+  border: 1px solid rgba(0,0,0,0.7);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+}
+.dtape-reel {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #5a4030, #1a100a);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+.dtape-bridge {
+  flex: 1;
+  height: 3px;
+  background: rgba(80,55,35,0.6);
+  margin: 0 5px;
+  border-radius: 1px;
+}
+.dtape-holes {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+.dtape-holes span {
+  display: block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.8);
+  border: 1px solid rgba(0,0,0,0.9);
+}
+
+/* Posisi kaset #1 — kiri atas, agak miring */
+.deco-tape-1 {
+  top: 8%;
+  left: 2%;
+  transform: rotate(-15deg);
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));
+}
+/* Posisi kaset #2 — kiri bawah, miring lain */
+.deco-tape-2 {
+  bottom: 10%;
+  left: 1%;
+  transform: rotate(8deg);
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));
+}
+
+/* === Tempat Pensil === */
+.desk-pencil-cup {
+  top: 5%;
+  right: 1%;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.75));
+}
+.pcup-body {
+  position: relative;
+  width: 55px;
+  height: 65px;
+  background: linear-gradient(175deg, #5a3a20 0%, #3d2510 100%);
+  border-radius: 4px 4px 0 0;
+  border: 1px solid rgba(0,0,0,0.5);
+  box-shadow: inset 2px 0 4px rgba(0,0,0,0.3), inset -2px 0 4px rgba(0,0,0,0.3);
+  overflow: visible;
+}
+.pcup-rim {
+  position: absolute;
+  top: -4px; left: -3px;
+  width: calc(100% + 6px);
+  height: 8px;
+  background: linear-gradient(180deg, #7a5035, #4a2e18);
+  border-radius: 3px 3px 0 0;
+  border: 1px solid rgba(0,0,0,0.5);
+}
+.pcup-pencil {
+  position: absolute;
+  bottom: 100%;
+  width: 7px;
+  height: var(--h);
+  background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 60%, #000));
+  border-radius: 2px 2px 1px 1px;
+  transform: rotate(var(--rot));
+  transform-origin: bottom center;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.4);
+}
+.pcup-pencil:nth-child(2) { left: 6px; }
+.pcup-pencil:nth-child(3) { left: 16px; }
+.pcup-pencil:nth-child(4) { left: 26px; }
+.pcup-pencil:nth-child(5) { left: 36px; }
+.pcup-base {
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(180deg, #4a2e18, #2e1a0c);
+  border-radius: 0 0 5px 5px;
+  border: 1px solid rgba(0,0,0,0.5);
+  border-top: none;
+}
+
+/* === Tumpukan Buku === */
+.desk-books {
+  bottom: 5%;
+  right: 0%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+}
+.book {
+  width: var(--bw);
+  height: 18px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bc) 80%, #fff 20%), var(--bc));
+  border-top: 2px solid color-mix(in srgb, var(--bc) 60%, #fff 40%);
+  border-left: 8px solid color-mix(in srgb, var(--bc) 40%, #000 60%);
+  border-radius: 1px;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.4);
+}
+
+/* === Lampu Pojok Kanan Bawah === */
+.desk-lamp-corner {
+  bottom: -5%;
+  right: -2%;
+  width: 200px;
+  z-index: 4;
+}
+.corner-lamp-img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 -8px 25px rgba(255, 100, 20, 0.65)) drop-shadow(0 10px 15px rgba(0,0,0,0.9));
+}
+.corner-lamp-glow {
+  position: absolute;
+  top: -20px;
+  left: -100px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at 60% 75%, rgba(255, 100, 20, 0.30) 0%, rgba(220, 120, 40, 0.12) 35%, transparent 65%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  z-index: -1;
+}
+
+/* === Cahaya hangat dari atas deck — atmosferik & hidup === */
+.deck-top-light {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130%;
+  height: 120px;
+  background: radial-gradient(ellipse at 50% 0%,
+    rgba(212, 130, 50, 0.35) 0%,
+    rgba(180, 100, 30, 0.15) 40%,
+    transparent 75%
+  );
+  pointer-events: none;
+  z-index: 10;
+  filter: blur(24px);
+  animation: deckGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes deckGlow {
+  0%   { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+
 
 /* Penjajaran Tombol di Hero Section */
 .hero-cta {
@@ -204,6 +459,27 @@ a:hover { color: var(--brand-hover); }
   gap: 1rem;         /* Memberi jarak antar tombol */
   flex-wrap: wrap;     /* Memastikan tombol turun jika layar terlalu sempit */
 }
+/* Hero container padding */
+.hero-desk-scene > .container.hero-grid {
+  padding: 4rem 0;
+}
+
+/* Responsive: sembunyikan elemen dekorasi di layar kecil */
+@media (max-width: 1024px) {
+  .deco-tape-1  { top: 5%;   left: 0%;   transform: rotate(-15deg) scale(0.8); }
+  .deco-tape-2  { bottom: 8%; left: 0%;  transform: rotate(8deg) scale(0.8); }
+  .desk-books   { right: -2%; transform: rotate(-8deg) scale(0.85); }
+  .desk-pencil-cup { right: 0; transform: scale(0.85); }
+  .desk-lamp-corner { width: 160px; right: -4%; }
+}
+@media (max-width: 768px) {
+  .desk-cassette { display: none; }
+  .desk-pencil-cup { display: none; }
+  .desk-books { display: none; }
+  .desk-lamp-corner { width: 130px; bottom: -10%; right: -5%; }
+  .hero-overhead-light { width: 500px; height: 500px; }
+}
+
 /* ===== About Section (Vinyl Room Style) ===== */
 .two-col { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: start; }
 
@@ -1083,10 +1359,810 @@ a:hover { color: var(--brand-hover); }
   height: 300px;
 }
 
-/* ===== Lightbox ===== */
-.lightbox { display: none; position: fixed; z-index: 9999; padding-top: 60px; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); }
+
+/* ===== Lightbox (legacy cert images) ===== */
+.lightbox { display: none; position: fixed; z-index: 9999; align-items: center; justify-content: center; left: 0; top: 0; width: 100%; height: 100%; }
 #lightbox-img { margin: auto; display: block; max-width: 90%; max-height: 80vh; border-radius: 12px; }
 .close { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
+
+/* ===== Project Modal - LinkedIn Style ===== */
+#project-modal { background: transparent; overflow: hidden; }
+
+.pm-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.pm-dialog {
+  position: relative;
+  z-index: 10;
+  background: var(--bg, #1a140f);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  width: min(720px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,145,92,0.15);
+  animation: pmSlideIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pmSlideIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.pm-header {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background: #111;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pm-swiper, .pm-swiper .swiper-wrapper, .pm-swiper .swiper-slide {
+  width: 100%; height: 100%;
+}
+
+.pm-img-slide {
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.pm-no-img {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #1a140f;
+}
+
+.pm-swiper .swiper-button-next,
+.pm-swiper .swiper-button-prev {
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.pm-swiper .swiper-pagination-bullet-active { background: var(--brand); }
+
+.pm-close {
+  position: absolute; top: 12px; right: 14px;
+  background: rgba(0,0,0,0.55);
+  border: none; color: #fff;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  font-size: 20px; line-height: 1;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: background 0.2s;
+  z-index: 20;
+}
+.pm-close:hover { background: rgba(212,145,92,0.85); }
+
+.pm-body {
+  padding: 1.5rem 2rem 2rem;
+}
+
+.pm-meta { margin-bottom: 0.75rem; }
+
+.pm-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--brand);
+  margin-bottom: 0.4rem;
+  line-height: 1.25;
+}
+
+.pm-category-row {
+  display: flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.85rem;
+}
+
+.pm-cat-label {
+  background: rgba(212,145,92,0.12);
+  color: var(--brand);
+  border: 1px solid rgba(212,145,92,0.3);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.pm-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 1rem 0;
+}
+
+.pm-section { margin-bottom: 1.5rem; }
+
+.pm-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.45);
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 0.75rem;
+}
+
+.pm-desc {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.8);
+  white-space: pre-wrap;
+}
+
+/* Skills badges - LinkedIn style */
+.pm-skills-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+.pm-skill-badge {
+  background: rgba(212,145,92,0.1);
+  border: 1px solid rgba(212,145,92,0.3);
+  color: var(--brand);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.pm-skill-badge:hover {
+  background: rgba(212,145,92,0.2);
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.pm-link-row {
+  display: flex;
+  margin-top: 1rem;
+}
+
+.pm-visit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.9rem;
+}
+
+
+
+/* =============================================================
+   ===== TURNTABLE DECK — Hero Section Interactive Player ======
+   ============================================================= */
+
+/* --- Outer Deck Container --- */
+.turntable-deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  padding: 2.5rem;
+}
+
+/* --- Desk Mat (Karpet Meja) --- */
+.desk-mat {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1a1612;
+  /* Tekstur kain karpet / anyaman */
+  background-image: 
+    linear-gradient(45deg, rgba(0,0,0,0.15) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0.15)),
+    linear-gradient(45deg, rgba(0,0,0,0.15) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0.15));
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+  border-radius: 12px;
+  box-shadow: 
+    0 10px 30px rgba(0,0,0,0.8),
+    inset 0 0 100px rgba(0,0,0,0.9),
+    0 0 0 1px rgba(255,255,255,0.03);
+  z-index: -2;
+  border-bottom: 4px solid #110d0a;
+}
+
+/* --- Desk Lamp & Glow --- */
+.desk-lamp-wrapper {
+  position: absolute;
+  /* Geser sedikit lebih ke dalam agar menapak di atas meja */
+  top: -40px;
+  left: -80px; 
+  width: 170px;
+  z-index: 25;
+  pointer-events: none;
+}
+.desk-lamp-img {
+  width: 100%;
+  height: auto;
+  /* Kombinasi bayangan menapak (hitam) dan cahaya memancar (oranye) dari bodinya */
+  filter: 
+    drop-shadow(0 8px 12px rgba(0,0,0,0.8)) 
+    drop-shadow(0 0 35px rgba(255, 90, 0, 0.6));
+  /* Penyesuaian warna agar lebih hangat menyatu dengan environment */
+  mix-blend-mode: normal;
+}
+.desk-lamp-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-30%, -30%);
+  width: 800px;
+  height: 800px;
+  /* Cahaya lingkungan (ambient light) memancar luas di atas meja */
+  background: radial-gradient(circle, rgba(255, 100, 20, 0.28) 0%, rgba(212, 120, 50, 0.12) 30%, transparent 65%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  z-index: -1; 
+}
+
+/* Responsif untuk gambar lampu: sembunyikan jika layar terlalu kecil agar tidak nabrak */
+@media (max-width: 768px) {
+  .desk-lamp-wrapper { left: -60px; width: 160px; top: -10px; }
+  .desk-lamp-glow { width: 500px; height: 500px; }
+}
+@media (max-width: 480px) {
+  .desk-lamp-wrapper { display: none; /* Hilangkan lampu fisik di HP */ }
+  .desk-lamp-glow { display: block; left: -20px; width: 400px; height: 400px; } /* Tetap pertahankan cahayanya */
+}
+
+/* --- Cassette Deco (Top) --- */
+.cassette-deco {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.cassette-body {
+  background: linear-gradient(145deg, #2a1f15, #1a130c);
+  border: 1px solid rgba(212, 145, 92, 0.25);
+  border-radius: 8px;
+  padding: 0.75rem 1.2rem;
+  width: 280px;
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.5),
+    inset 0 1px 1px rgba(255,255,255,0.06),
+    inset 0 -2px 4px rgba(0,0,0,0.5);
+  position: relative;
+}
+/* Baut sudut kaset */
+.cassette-body::before,
+.cassette-body::after {
+  content: '';
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #0e0b07;
+  border: 1px solid #3a2e25;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+  top: 7px;
+}
+.cassette-body::before { left: 8px; }
+.cassette-body::after  { right: 8px; }
+
+/* Jendela transparan kaset */
+.cassette-window {
+  background: rgba(0,0,0,0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* Roda gigi (Reel) kaset */
+.cassette-reel {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #1a1410 30%, transparent 30.5%),
+    repeating-conic-gradient(
+      #2a201a 0deg 30deg,
+      #1a1410 30deg 60deg
+    );
+  border: 2px solid #3a2e25;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+/* Lubang tengah reel */
+.cassette-reel::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #0e0b07;
+  border: 1px solid #2a201a;
+}
+
+/* Spinning animation untuk reel saat playing */
+.cassette-reel.spinning {
+  animation: reelSpin 1.8s linear infinite;
+}
+.cassette-reel.spinning.left { animation-direction: normal; }
+.cassette-reel.spinning.right { animation-direction: reverse; }
+
+@keyframes reelSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Jembatan tape di tengah jendela */
+.cassette-tape-bridge {
+  flex: 1;
+  height: 4px;
+  background: linear-gradient(90deg, #2a201a, #d4915c33, #2a201a);
+  border-radius: 2px;
+  margin: 0 4px;
+}
+
+/* Label teks kaset */
+.cassette-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cassette-title {
+  font-family: monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--brand);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 170px;
+}
+.cassette-side {
+  font-family: monospace;
+  font-size: 0.6rem;
+  color: rgba(212, 145, 92, 0.55);
+  letter-spacing: 1px;
+}
+
+/* --- Platter Area (Vinyl + Tonearm) --- */
+.turntable-platter-area {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  flex-shrink: 0;
+}
+
+/* Plinth / mat background */
+.turntable-platter-area::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 318px;
+  height: 318px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1e1812 60%, #14100c 100%);
+  border: 2px solid rgba(58, 48, 40, 0.6);
+  box-shadow:
+    0 0 0 1px rgba(212, 145, 92, 0.08),
+    0 10px 40px rgba(0,0,0,0.6),
+    inset 0 0 30px rgba(0,0,0,0.4);
+  z-index: 0;
+}
+
+/* --- Vinyl Record (also the Play Button) --- */
+.vinyl-record {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 290px;
+  height: 290px;
+  border-radius: 50%;
+  border: none;
+  background:
+    radial-gradient(circle at 30% 30%, #2a2520 0%, #0d0b09 60%, #050403 100%);
+  cursor: pointer;
+  z-index: 2;
+  /* Vinyl grooves texture */
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.04),
+    0 0 0 4px rgba(0,0,0,0.3),
+    0 0 30px rgba(0,0,0,0.8),
+    0 0 60px rgba(212, 145, 92, 0.05);
+  transition: box-shadow 0.5s ease;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vinyl-record:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 4px;
+}
+/* Shiny reflection on vinyl */
+.vinyl-record::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,255,255,0.05) 0deg,
+    rgba(255,255,255,0.02) 30deg,
+    transparent 60deg,
+    rgba(255,255,255,0.03) 120deg,
+    transparent 180deg,
+    rgba(255,255,255,0.04) 240deg,
+    transparent 300deg,
+    rgba(255,255,255,0.05) 360deg
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+/* Warm glow when playing */
+.vinyl-record.playing {
+  box-shadow:
+    0 0 0 2px rgba(212, 145, 92, 0.15),
+    0 0 0 4px rgba(0,0,0,0.3),
+    0 0 30px rgba(212, 145, 92, 0.2),
+    0 0 80px rgba(212, 145, 92, 0.1);
+}
+
+/* SVG Groove rings overlay */
+.vinyl-grooves {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ==========================================
+   STATIC VINYL PHOTO FRAME (tidak berputar)
+   ========================================== */
+.vinyl-photo-frame {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  z-index: 6;
+  /* Pointer events pass-through → klik ke vinyl button di bawah */
+  pointer-events: none;
+  /* 3D floating shadow */
+  filter:
+    drop-shadow(0 14px 28px rgba(0,0,0,0.80))
+    drop-shadow(0 4px 8px rgba(0,0,0,0.55))
+    drop-shadow(0 0 20px rgba(212,145,92,0.08));
+  animation: photoFloat 5s ease-in-out infinite;
+}
+
+/* Floating up-down animation (ilusi 3D melayang) */
+@keyframes photoFloat {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0px);
+    filter:
+      drop-shadow(0 14px 28px rgba(0,0,0,0.80))
+      drop-shadow(0 4px 8px rgba(0,0,0,0.55))
+      drop-shadow(0 0 18px rgba(212,145,92,0.08));
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-7px);
+    filter:
+      drop-shadow(0 22px 38px rgba(0,0,0,0.85))
+      drop-shadow(0 8px 16px rgba(0,0,0,0.55))
+      drop-shadow(0 0 28px rgba(212,145,92,0.18));
+  }
+}
+
+/* Ambient glow (pulsing saat playing) */
+.vpf-glow {
+  position: absolute;
+  inset: -28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,145,92,0.10) 0%, transparent 68%);
+  z-index: 0;
+  transition: background 0.7s ease;
+  pointer-events: none;
+}
+.vpf-glow.active {
+  background: radial-gradient(circle, rgba(212,145,92,0.45) 0%, rgba(212,145,92,0.15) 45%, transparent 72%);
+  animation: vpfGlowPulse 2s ease-in-out infinite;
+}
+@keyframes vpfGlowPulse {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1; }
+}
+
+/* Outer metallic ring (conic gradient = efek bevel berkilau) */
+.vpf-outer-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #6a3c1e 0deg,
+    #c8875a 40deg,
+    #f0c88a 80deg,
+    #c8875a 120deg,
+    #8b5030 160deg,
+    #c8875a 200deg,
+    #f0c88a 240deg,
+    #8b5030 280deg,
+    #c8875a 320deg,
+    #6a3c1e 360deg
+  );
+  z-index: 1;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.65),
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset;
+  pointer-events: none;
+}
+/* Gap hitam tipis antara ring dan foto */
+.vpf-outer-ring::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #0e0b09;
+  border: 1px solid rgba(0,0,0,0.7);
+}
+
+/* Foto profil */
+.vinyl-photo {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 2;
+  display: block;
+  /* Enhanced contrast & color */
+  filter: contrast(1.08) saturate(1.12) brightness(1.02);
+  transition: filter 0.5s ease;
+  /* Inset shadow top-left = highlight; bottom = depth shadow */
+  box-shadow:
+    inset 0 3px 7px rgba(255,255,255,0.14),
+    inset 0 -5px 10px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(212,145,92,0.18);
+}
+/* Lebih cerah & vivid saat playing */
+.vpf-glow.active ~ .vinyl-photo,
+.vinyl-photo-frame .vinyl-photo {
+  filter: contrast(1.08) saturate(1.12) brightness(1.02);
+}
+
+/* Glass shine overlay (1/2 atas) — efek 3D kaca */
+.vpf-shine {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: calc(100% - 6px);
+  height: 52%;
+  border-radius: 65px 65px 0 0 / 60px 60px 0 0;
+  background: linear-gradient(
+    175deg,
+    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.08) 40%,
+    rgba(255,255,255,0.02) 70%,
+    transparent 100%
+  );
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Play/Pause icon overlay on hover */
+.vinyl-play-icon {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(212, 145, 92, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.vinyl-record:hover .vinyl-play-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* Spin animation */
+@keyframes vinylRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+/* Counter-spin icon agar tetap tegak saat vinyl berputar */
+@keyframes iconCounterSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+.vinyl-record.playing {
+  animation: vinylRotate 4s linear infinite;
+}
+/* Icon counter-rotates so it stays upright */
+.vinyl-record.playing .vinyl-play-icon {
+  animation: iconCounterSpin 4s linear infinite;
+}
+/* Show icon on hover (even while playing) */
+.vinyl-record:hover .vinyl-play-icon,
+.vinyl-record.playing:hover .vinyl-play-icon {
+  opacity: 1;
+}
+
+
+/* --- Tonearm --- */
+.tonearm-container {
+  position: absolute;
+  top: -8px;
+  right: -22px;
+  width: 100px;
+  height: 180px;
+  z-index: 5;
+  pointer-events: none;
+}
+/* Pivot point (screw) */
+.tonearm-pivot {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #a0856a, #4a3525);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.15);
+  z-index: 6;
+}
+/* Arm itself */
+.tonearm-arm {
+  position: absolute;
+  top: 17px; right: 17px;
+  width: 10px;
+  height: 130px;
+  background: linear-gradient(180deg, #c8a87a 0%, #8a6848 50%, #a08060 100%);
+  border-radius: 5px 5px 2px 2px;
+  transform-origin: top center;
+  transform: rotate(-32deg);
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+/* Arm moves onto vinyl when playing */
+.tonearm-arm.on-vinyl {
+  transform: rotate(15deg);
+}
+/* Headshell at bottom of arm */
+.tonearm-headshell {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-15deg);
+  width: 18px; height: 14px;
+  background: linear-gradient(135deg, #b89070, #7a5838);
+  border-radius: 3px 3px 6px 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+/* Cartridge (stylus) */
+.tonearm-cartridge {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 12px;
+  background: #d4915c;
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 0 4px rgba(212, 145, 92, 0.6);
+}
+/* Glowing needle when playing */
+.tonearm-arm.on-vinyl .tonearm-cartridge {
+  box-shadow: 0 0 8px var(--brand), 0 0 16px rgba(212, 145, 92, 0.4);
+}
+
+/* --- Status Bar --- */
+.turntable-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem 0.85rem;
+  background: rgba(14, 11, 7, 0.8);
+  border: 1px solid rgba(58, 48, 40, 0.6);
+  border-radius: 4px;
+  font-family: monospace;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #333;
+  border: 1px solid #444;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+  transition: all 0.4s ease;
+  flex-shrink: 0;
+}
+.status-dot.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  box-shadow: 0 0 8px var(--brand), 0 0 16px rgba(212, 145, 92, 0.4), inset 0 0 3px #fff;
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 6px var(--brand), inset 0 0 2px #fff; }
+  50%       { box-shadow: 0 0 14px var(--brand), 0 0 24px rgba(212,145,92,0.5), inset 0 0 4px #fff; }
+}
+.status-label {
+  font-size: 0.6rem;
+  color: rgba(212, 145, 92, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.4rem;
+}
+.status-rpm {
+  font-size: 0.65rem;
+  color: rgba(212, 145, 92, 0.5);
+  letter-spacing: 0.5px;
+}
+.status-rpm small { font-size: 0.55rem; opacity: 0.7; }
+
+/* --- Responsive: Turntable on Mobile --- */
+@media (max-width: 768px) {
+  .turntable-deck {
+    max-width: 300px;
+    gap: 0.8rem;
+  }
+  .cassette-body { width: 220px; padding: 0.6rem 0.9rem; }
+  .cassette-reel { width: 32px; height: 32px; }
+  .cassette-title { font-size: 0.55rem; max-width: 120px; }
+  .turntable-platter-area { width: 220px; height: 220px; }
+  .turntable-platter-area::before { width: 236px; height: 236px; }
+  .vinyl-record { width: 210px; height: 210px; }
+  .vinyl-photo-frame { width: 96px; height: 96px; }
+  .vinyl-photo { width: 94px; height: 94px; }
+  .tonearm-container { width: 80px; height: 140px; right: -18px; }
+  .tonearm-arm { height: 100px; }
+  .turntable-status { max-width: 220px; padding: 0.4rem 0.65rem; }
+  .status-label { font-size: 0.52rem; }
+}
+@media (max-width: 480px) {
+  .turntable-deck { max-width: 250px; }
+  .cassette-body { width: 200px; }
+  .turntable-platter-area { width: 190px; height: 190px; }
+  .turntable-platter-area::before { width: 204px; height: 204px; }
+  .vinyl-record { width: 180px; height: 180px; }
+  .vinyl-photo-frame { width: 80px; height: 80px; }
+  .vinyl-photo { width: 78px; height: 78px; }
+}
 
 /* ===== Footer ===== */
 .site-footer { background: #12100d; text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 5rem; }
@@ -1431,3 +2507,138 @@ a:hover { color: var(--brand-hover); }
   .contact-form-card { padding: 1.2rem; }
 }
 
+/* ===== Skills Vintage Volume Knobs ===== */
+.skills-knob-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 2.5rem 1.5rem;
+  justify-items: center;
+  align-items: center;
+  padding: 1.5rem 0;
+}
+
+.skill-knob-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(33, 28, 22, 0.4);
+  border: 1px solid rgba(212, 145, 92, 0.15);
+  border-radius: 16px;
+  padding: 1.2rem 1rem;
+  width: 100%;
+  max-width: 140px;
+  transition: all 0.3s ease;
+}
+
+.skill-knob-wrapper:hover {
+  background: rgba(33, 28, 22, 0.7);
+  border-color: rgba(212, 145, 92, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.vintage-knob {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3a3229, #1a1612);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+  border: 2px solid #4a3e33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vintage-knob::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(212, 145, 92, 0.3);
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+
+.vintage-knob.level-dasar::before {
+  border: 1px dashed rgba(212, 145, 92, 0.3);
+}
+
+.vintage-knob.level-menengah::before {
+  border: 1px dashed rgba(212, 145, 92, 0.8);
+}
+
+.vintage-knob.level-ahli::before {
+  border: 2px solid var(--brand, #d4915c);
+  box-shadow: 0 0 15px rgba(212, 145, 92, 0.6), inset 0 0 12px rgba(212, 145, 92, 0.4);
+}
+
+.knob-dial {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #2b241d, #191511, #2b241d);
+  box-shadow: 
+    0 2px 5px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.knob-indicator {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 12px;
+  background: var(--brand, #d4915c);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--brand, #d4915c);
+}
+
+.knob-center {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: rgba(20, 16, 13, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(212, 145, 92, 0.2);
+}
+
+.knob-center img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.skill-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.skill-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+.skill-level {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--brand, #d4915c);
+  background: rgba(212, 145, 92, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(212, 145, 92, 0.2);
+}
