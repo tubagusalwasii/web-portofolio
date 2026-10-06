@@ -1861,25 +1861,6 @@ a:hover { color: var(--brand-hover); }
     drop-shadow(0 14px 28px rgba(0,0,0,0.80))
     drop-shadow(0 4px 8px rgba(0,0,0,0.55))
     drop-shadow(0 0 20px rgba(212,145,92,0.08));
-  animation: photoFloat 5s ease-in-out infinite;
-}
-
-/* Floating up-down animation (ilusi 3D melayang) */
-@keyframes photoFloat {
-  0%, 100% {
-    transform: translate(-50%, -50%) translateY(0px);
-    filter:
-      drop-shadow(0 14px 28px rgba(0,0,0,0.80))
-      drop-shadow(0 4px 8px rgba(0,0,0,0.55))
-      drop-shadow(0 0 18px rgba(212,145,92,0.08));
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(-7px);
-    filter:
-      drop-shadow(0 22px 38px rgba(0,0,0,0.85))
-      drop-shadow(0 8px 16px rgba(0,0,0,0.55))
-      drop-shadow(0 0 28px rgba(212,145,92,0.18));
-  }
 }
 
 /* Ambient glow (pulsing saat playing) */
@@ -2299,7 +2280,6 @@ img { image-rendering: auto; }
 
   /* Matikan animasi berat di mobile untuk performa */
   .bg-glow { animation: none !important; display: none; }
-  @keyframes photoFloat { from, to { transform: translate(-50%, -50%); } }
   .contact-vinyl-deco { animation: none; }
   .hero-overhead-light { display: none; }
   .deck-top-light { animation: none; }
