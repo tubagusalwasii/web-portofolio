@@ -1,7 +1,7 @@
 // ===== Inisialisasi AOS (Animate On Scroll) =====
 AOS.init({
   duration: 800,
-  once: false, // Animasi akan berjalan setiap kali di-scroll
+  once: true, // Animasi hanya berjalan sekali — lebih ringan & profesional
   offset: 120,
 });
 
@@ -258,6 +258,7 @@ if (contactForm) {
   const statusLabel  = document.getElementById('status-label');
   const iconPlay     = document.getElementById('icon-play');
   const iconPause    = document.getElementById('icon-pause');
+  const glow         = document.getElementById('vpf-glow'); // Cache sekali di awal
 
   // Guard: kalau elemen tidak ada (halaman lain), hentikan
   if (!audio || !vinylBtn) return;
@@ -278,7 +279,6 @@ if (contactForm) {
       reelRight.classList.add('spinning');
 
       // --- Ambient Glow: nyala ---
-      const glow = document.getElementById('vpf-glow');
       if (glow) glow.classList.add('active');
 
       // --- Status Bar ---
@@ -300,7 +300,6 @@ if (contactForm) {
       reelRight.classList.remove('spinning');
 
       // --- Ambient Glow: mati ---
-      const glow = document.getElementById('vpf-glow');
       if (glow) glow.classList.remove('active');
 
       // --- Status Bar ---

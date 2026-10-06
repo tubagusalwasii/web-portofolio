@@ -61,15 +61,23 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portofolio — {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}</title>
     <meta name="description" content="Portofolio pribadi {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}, seorang mahasiswa Teknik Informatika dengan minat pada UI/UX, Mobile Development, dan AI.">
+    <meta property="og:title" content="Portofolio — {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}">
+    <meta property="og:description" content="Seorang mahasiswa Teknik Informatika dengan minat pada UI/UX, Mobile Development, dan AI.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#1a1a2e">
     
     <link rel="icon" href="{{ ($settings->site_logo ?? null) ? safeStorageUrl($settings->site_logo) : asset('assets/favicon.svg') }}" type="image/svg+xml">
+    
+    {{-- Preload gambar profil di hero (LCP - above the fold) --}}
+    @php $heroImg = $settings->hero_image ? safeStorageUrl($settings->hero_image, 'assets/profil2.jpeg') : asset('assets/profil2.jpeg'); @endphp
+    <link rel="preload" as="image" href="{{ $heroImg }}">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
-    <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ config('app.version', '1.0') }}">
   </head>
   <body>
     <div class="bg-glow"></div>
@@ -207,9 +215,11 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
                 <div class="vpf-outer-ring"></div>
                 <!-- Foto profil -->
                 <img
-                  src="{{ $settings->hero_image ? safeStorageUrl($settings->hero_image, 'assets/profil2.jpeg') : asset('assets/profil2.jpeg') }}"
+                  src="{{ $heroImg }}"
                   alt="Foto profil {{ $settings->hero_title ?? "Tubagus Alwasi'i" }}"
                   class="vinyl-photo"
+                  width="200"
+                  height="200"
                 />
                 <!-- Glass shine overlay (efek 3D kaca) -->
                 <div class="vpf-shine"></div>
@@ -410,7 +420,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
               @foreach($certificates as $index => $cert)
               <div class="certificate-item {{ $index >= 6 ? 'hidden-item' : '' }}" data-aos="fade-up">
                 <div class="cert-img-container">
-                  <img src="{{ $cert->image ? safeStorageUrl($cert->image) : '' }}" alt="{{ $cert->title }}" class="cert-img">
+                  <img src="{{ $cert->image ? safeStorageUrl($cert->image) : '' }}" alt="{{ $cert->title }}" class="cert-img" loading="lazy" width="400" height="280">
                 </div>
                 <div class="certificate-body">
                   <h4>{{ $cert->title }}</h4>
@@ -441,7 +451,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
                     </div>
                     <div class="knob-center">
                       @if($skill->icon_url)
-                        <img src="{{ safeStorageUrl($skill->icon_url) }}" alt="{{ $skill->name }}">
+                        <img src="{{ safeStorageUrl($skill->icon_url) }}" alt="{{ $skill->name }}" loading="lazy" width="40" height="40">
                       @else
                         <span>{{ substr($skill->name, 0, 2) }}</span>
                       @endif
@@ -612,7 +622,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="{{ asset('script.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('script.js') }}?v={{ config('app.version', '1.0') }}" defer></script>
     <script>
       // Data projects for modal
       const projectsData = [
