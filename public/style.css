@@ -1687,11 +1687,15 @@ a:hover { color: var(--brand-hover); }
       #2a201a 0deg 30deg,
       #1a1410 30deg 60deg
     );
-  border: 2px solid #3a2e25;
   position: relative;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  /* Idle ambient spin */
+  animation: reelSpin 12s linear infinite;
 }
+.cassette-reel.left { animation-direction: normal; }
+.cassette-reel.right { animation-direction: reverse; }
+
 /* Lubang tengah reel */
 .cassette-reel::after {
   content: '';
@@ -1704,14 +1708,12 @@ a:hover { color: var(--brand-hover); }
   border: 1px solid #2a201a;
 }
 
-/* Spinning animation ringan (hardware accelerated) */
-.cassette-reel {
-  animation: reelSpin 4s linear infinite;
-  will-change: transform;
+/* Spinning animation untuk reel saat playing */
+.cassette-reel.spinning {
+  animation: reelSpin 1.8s linear infinite;
 }
-.cassette-reel.right { 
-  animation-direction: reverse; 
-}
+.cassette-reel.spinning.left { animation-direction: normal; }
+.cassette-reel.spinning.right { animation-direction: reverse; }
 
 @keyframes reelSpin {
   from { transform: rotate(0deg); }
@@ -1727,36 +1729,24 @@ a:hover { color: var(--brand-hover); }
   margin: 0 4px;
 }
 
-/* Label teks kaset (Marquee Ringan) */
+/* Label teks kaset */
 .cassette-label {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.cassette-title-wrapper {
-  overflow: hidden;
-  max-width: 160px;
-  white-space: nowrap;
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-.cassette-title-scroll {
-  display: inline-block;
+.cassette-title {
   font-family: monospace;
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: var(--brand);
-  animation: textMarquee 8s linear infinite;
-  will-change: transform;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 170px;
 }
-
-@keyframes textMarquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
 .cassette-side {
   font-family: monospace;
   font-size: 0.6rem;
@@ -1814,9 +1804,8 @@ a:hover { color: var(--brand-hover); }
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Animasi muter terus menerus yang ringan (GPU accelerated) */
-  animation: vinylRotate 8s linear infinite;
-  will-change: transform;
+  /* Idle ambient spin */
+  animation: vinylRotate 15s linear infinite;
 }
 .vinyl-record:focus-visible {
   outline: 3px solid var(--brand);
@@ -1992,13 +1981,12 @@ a:hover { color: var(--brand-hover); }
   justify-content: center;
   color: var(--brand);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: none;
-  /* Melawan putaran vinyl agar icon tetap tegak lurus */
-  animation: iconCounterSpin 8s linear infinite;
 }
 .vinyl-record:hover .vinyl-play-icon {
   opacity: 1;
+  transform: translate(-50%, -50%) scale(1.08);
 }
 
 /* Spin animation */
@@ -2011,6 +1999,23 @@ a:hover { color: var(--brand-hover); }
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 }
+
+/* Counter-spin agar foto dan icon tetap tegak (hanya piringan hitam yang muter) */
+.vinyl-record .vinyl-play-icon,
+.vinyl-record .vinyl-photo-frame {
+  animation: iconCounterSpin 15s linear infinite;
+}
+
+/* Spin lebih cepat saat playing */
+.vinyl-record.playing {
+  animation: vinylRotate 4s linear infinite;
+}
+/* Icon & Foto ikut counter-spin cepat agar tetap tegak */
+.vinyl-record.playing .vinyl-play-icon,
+.vinyl-record.playing .vinyl-photo-frame {
+  animation: iconCounterSpin 4s linear infinite;
+}
+
 /* Show icon on hover (even while playing) */
 .vinyl-record:hover .vinyl-play-icon,
 .vinyl-record.playing:hover .vinyl-play-icon {
