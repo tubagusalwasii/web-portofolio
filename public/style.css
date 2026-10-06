@@ -38,11 +38,16 @@ body {
   position: relative;
   overflow-x: hidden;
   width: 100%;
-}
+  /* Tambah: percepat rendering di mobile */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeSpeed;
 
 body.no-scroll {
   overflow: hidden;
-  height: 100vh;
+  /* Gunakan height:100% daripada 100vh agar tidak ada bug di Safari mobile */
+  height: 100%;
+  position: fixed;
+  width: 100%;
 }
 
 /* Film grain texture overlay */
@@ -81,6 +86,9 @@ body::after {
 /* ===== Links & Buttons ===== */
 a { color: var(--brand); text-decoration: none; }
 a:hover { color: var(--brand-hover); }
+
+/* Touch targets minimum 48x48px (Google Material guideline) */
+.button, a.button, button { touch-action: manipulation; }
 
 .button {
   display: inline-flex; /* Menggunakan inline-flex untuk alignment ikon */
@@ -461,7 +469,7 @@ a:hover { color: var(--brand-hover); }
 }
 /* Hero container padding */
 .hero-desk-scene > .container.hero-grid {
-  padding: 4rem 0;
+  padding: 5rem 0 4rem;
 }
 
 /* Responsive: sembunyikan elemen dekorasi di layar kecil */
@@ -2173,6 +2181,15 @@ a:hover { color: var(--brand-hover); }
 /* ===== Footer ===== */
 .site-footer { background: #12100d; text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 5rem; }
 
+/* will-change hints untuk elemen yang sering dianimasikan */
+.vinyl-record { will-change: transform; }
+.vinyl-photo-frame { will-change: transform, filter; }
+.stat-card { will-change: transform; }
+.timeline-content { will-change: transform; }
+
+/* ===== Smooth image rendering ===== */
+img { image-rendering: auto; }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #16120e; }
@@ -2187,10 +2204,10 @@ a:hover { color: var(--brand-hover); }
     width: 100%;
   }
 
-  .section { padding: 3.5rem 0; }
-  .section-header { margin-bottom: 2rem; }
+  .section { padding: 3rem 0; }
+  .section-header { margin-bottom: 1.5rem; }
   .section-header h2 { font-size: 1.8rem; }
-  .section-subtitle { font-size: 0.95rem; }
+  .section-subtitle { font-size: 0.9rem; }
 
   /* --- Navigation Mobile (Hamburger Menu) --- */
   .brand { font-size: 1.2rem; } /* Sedikit diperkecil di mobile agar lebih rapi */
@@ -2275,15 +2292,30 @@ a:hover { color: var(--brand-hover); }
     color: var(--brand);
   }
 
+  /* Pada mobile: background-attachment:fixed menyebabkan lag scroll di iOS */
+  body {
+    background-attachment: scroll;
+  }
+
+  /* Matikan animasi berat di mobile untuk performa */
+  .bg-glow { animation: none !important; display: none; }
+  @keyframes photoFloat { from, to { transform: translate(-50%, -50%); } }
+  .contact-vinyl-deco { animation: none; }
+  .hero-overhead-light { display: none; }
+  .deck-top-light { animation: none; }
+
   /* --- Hero Section Mobile --- */
-  .hero { min-height: auto; padding: 1.5rem 0; overflow: hidden; }
+  .hero { min-height: auto; padding: 0; overflow: hidden; }
+  .hero-desk-scene > .container.hero-grid {
+    padding: 2.5rem 0 2rem;
+  }
   .hero-grid {
     grid-template-columns: 1fr;
     text-align: center;
-    gap: 1rem; /* Kurangi gap agar teks naik */
+    gap: 0;
   }
-  .hero-text { order: 2; margin-top: -10px; }
-  .turntable-deck { order: 1; margin: 0 auto; } /* Hapus scale karena menyisakan ruang kosong (dead space) */
+  .hero-text { order: 2; margin-top: 0.5rem; }
+  .turntable-deck { order: 1; margin: 0 auto; }
   .hero-text h1 { font-size: 2rem; line-height: 1.2; margin-bottom: 0.3rem; }
   .eyebrow { font-size: 0.85rem; margin-bottom: 0.2rem; }
   .subtitle { font-size: 0.95rem; margin: 0.5rem 0 1.2rem; min-height: 35px; }
@@ -2295,8 +2327,10 @@ a:hover { color: var(--brand-hover); }
   .hero-cta .button {
     width: 100%;
     max-width: 280px;
-    padding: 0.7rem 1.2rem;
+    padding: 0.75rem 1.2rem;
     font-size: 0.9rem;
+    /* Perbesar tap target */
+    min-height: 48px;
   }
 
   /* --- About Section Mobile --- */
@@ -2411,8 +2445,8 @@ a:hover { color: var(--brand-hover); }
   /* Certificates grid mobile */
   .certificates-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 40px 12px;
-    padding-top: 30px;
+    gap: 38px 10px;
+    padding-top: 28px;
   }
   .certificate-item { padding: 6px 6px 0; }
   .certificate-item::before {
@@ -2487,7 +2521,11 @@ a:hover { color: var(--brand-hover); }
 
   /* --- Fix: Horizontal Overflow Bug --- */
   .section::before { display: none; } /* Remove grid pattern on mobile to prevent overflow */
-  .bg-glow { display: none; } /* Remove glow on mobile for performance */
+
+  /* Matikan animasi berat saat prefer-no-animation (aksesibilitas) */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  }
 }
 
 /* ===== Very Small Screens (phones < 480px) ===== */

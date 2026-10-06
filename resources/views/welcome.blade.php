@@ -444,7 +444,7 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
                   if ($skill->level == 'Menengah') $rotation = 45;
                   if ($skill->level == 'Ahli') $rotation = 135;
                 @endphp
-                <div class="skill-knob-wrapper" data-aos="zoom-in-up" data-aos-delay="{{ ($index % 5) * 50 }}">
+                <div class="skill-knob-wrapper" data-aos="fade-up" data-aos-delay="{{ ($index % 5) * 50 }}">
                   <div class="vintage-knob level-{{ strtolower($skill->level) }}">
                     <div class="knob-dial" style="transform: rotate({{ $rotation }}deg);">
                       <div class="knob-indicator"></div>
