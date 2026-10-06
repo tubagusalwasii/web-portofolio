@@ -1687,6 +1687,7 @@ a:hover { color: var(--brand-hover); }
       #2a201a 0deg 30deg,
       #1a1410 30deg 60deg
     );
+  border: 2px solid #3a2e25;
   position: relative;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
