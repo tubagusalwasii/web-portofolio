@@ -143,8 +143,9 @@ function safeStorageUrl(?string $path, string $fallbackAsset = '', bool $downloa
                   <div class="cassette-tape-bridge"></div>
                   <div class="cassette-reel right" id="reel-right"></div>
                 </div>
-                <div class="cassette-label" style="justify-content: center;">
+                <div class="cassette-label">
                   <span class="cassette-title">PORTFOLIO MIX</span>
+                  <span class="cassette-side">SIDE A ▶</span>
                 </div>
               </div>
             </div>

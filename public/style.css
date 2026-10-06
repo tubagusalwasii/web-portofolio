@@ -1691,12 +1691,7 @@ a:hover { color: var(--brand-hover); }
   position: relative;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  /* Idle ambient spin */
-  animation: reelSpin 12s linear infinite;
 }
-.cassette-reel.left { animation-direction: normal; }
-.cassette-reel.right { animation-direction: reverse; }
-
 /* Lubang tengah reel */
 .cassette-reel::after {
   content: '';
@@ -1805,8 +1800,6 @@ a:hover { color: var(--brand-hover); }
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Idle ambient spin */
-  animation: vinylRotate 15s linear infinite;
 }
 .vinyl-record:focus-visible {
   outline: 3px solid var(--brand);
@@ -2000,23 +1993,13 @@ a:hover { color: var(--brand-hover); }
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 }
-
-/* Counter-spin agar foto dan icon tetap tegak (hanya piringan hitam yang muter) */
-.vinyl-record .vinyl-play-icon,
-.vinyl-record .vinyl-photo-frame {
-  animation: iconCounterSpin 15s linear infinite;
-}
-
-/* Spin lebih cepat saat playing */
 .vinyl-record.playing {
   animation: vinylRotate 4s linear infinite;
 }
-/* Icon & Foto ikut counter-spin cepat agar tetap tegak */
-.vinyl-record.playing .vinyl-play-icon,
-.vinyl-record.playing .vinyl-photo-frame {
+/* Icon counter-rotates so it stays upright */
+.vinyl-record.playing .vinyl-play-icon {
   animation: iconCounterSpin 4s linear infinite;
 }
-
 /* Show icon on hover (even while playing) */
 .vinyl-record:hover .vinyl-play-icon,
 .vinyl-record.playing:hover .vinyl-play-icon {
